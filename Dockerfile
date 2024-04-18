@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-d42b46dd-ls51 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-d274027d-ls53 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
