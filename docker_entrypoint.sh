@@ -36,6 +36,11 @@ if [ ! -f /config/.sparrow/config ]; then
   chown -R $PUID:$PGID /config/.sparrow
 fi
 
+# always overwrite autostart in case we change it
+mkdir -p /config/.config/openbox
+cp /defaults/autostart /config/.config/openbox/autostart
+chown -R abc:abc /config/.config/openbox
+
 # Manage Sparrow settings?
 if [ $(yq e '.sparrow.managesettings' /root/data/start9/config.yaml) = "true" ]; then
   # private bitcoin/electrum server
