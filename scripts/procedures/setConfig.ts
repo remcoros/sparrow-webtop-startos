@@ -2,8 +2,10 @@ import { compat, types as T } from "../deps.ts";
 
 // Define a custom type for T.Config to include the 'server' property with a 'type' property
 interface SparrowConfig extends T.Config {
-  server?: {
-    type?: string;
+  sparrow?: {
+    server?: {
+      type?: string;
+    };
   };
 }
 
@@ -12,8 +14,8 @@ export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
   newConfig: SparrowConfig,
 ) => {
-  const depsBitcoind: { [key: string]: string[] } = newConfig?.server?.type === "bitcoind" ? { "bitcoind": [] } : {};
-  const depsElectrs: { [key: string]: string[] } = newConfig?.server?.type === "electrs" ? { "electrs": [] } : {};
+  const depsBitcoind: { [key: string]: string[] } = newConfig?.sparrow?.server?.type === "bitcoind" ? { "bitcoind": [] } : {};
+  const depsElectrs: { [key: string]: string[] } = newConfig?.sparrow?.server?.type === "electrs" ? { "electrs": [] } : {};
 
   return compat.setConfig(effects, newConfig, {
     ...depsBitcoind,

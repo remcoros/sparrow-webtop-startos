@@ -1,6 +1,6 @@
 id: sparrow-webtop
 title: "Sparrow"
-version: 1.8.5.1
+version: 1.8.5.2
 release-notes: |
   * Update to Sparrow 1.8.5 - See [full changelog](https://github.com/sparrowwallet/sparrow/releases/tag/1.8.5)
   * Update and pin docker base image to specific debian version
