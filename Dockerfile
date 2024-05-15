@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-970af303-ls54 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-36987b11-ls57 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
@@ -26,6 +26,7 @@ RUN \
     # dark theme
     hsetroot \
     gnome-themes-extra \
+    compton \
     # desktop notifications
     xfce4-notifyd \
     libnotify-bin \
