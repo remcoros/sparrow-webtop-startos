@@ -1,5 +1,5 @@
-SPARROW_VERSION := 1.9.0
-SPARROW_DEBVERSION := 1.9.0-1
+SPARROW_VERSION := 1.9.1
+SPARROW_DEBVERSION := 1.9.1-1
 SPARROW_PGP_SIG := E94618334C674B40
 # sha256 hashes can be found in https://github.com/mikefarah/yq/releases/download/v4.40.7/checksums-bsd
 YQ_VERSION := 4.40.7
@@ -17,10 +17,12 @@ ASSET_FILES := $(shell find ./assets/compat)
 all: verify
 
 arm:
+	# this is not a typo, when building arm, remove the x86_64 image so it doesn't get packed by start-sdk
 	@rm -f docker-images/x86_64.tar
 	@ARCH=aarch64 $(MAKE)
 
 x86:
+	# this is not a typo, when building x86, remove the aarch64 image so it doesn't get packed by start-sdk
 	@rm -f docker-images/aarch64.tar
 	@ARCH=x86_64 $(MAKE)
 
