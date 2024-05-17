@@ -1,4 +1,4 @@
 # run a compositor to get transparency effects
-compton -cb
+compton -b
 
 /opt/sparrow/bin/Sparrow
