@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-36987b11-ls57 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-12c6f55b-ls87 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
@@ -50,6 +50,8 @@ RUN \
     fonts-noto-core \
     intel-media-va-driver \
     mesa-va-drivers \
+    mesa-vulkan-drivers \
+    x11-apps \
     xserver-xorg-video-amdgpu \
     xserver-xorg-video-ati \
     xserver-xorg-video-intel \
@@ -136,7 +138,7 @@ ENV \
 
 # add local files
 COPY /root /
-COPY --chmod=a+x ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
+COPY --chmod=755 ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 COPY --chmod=664 icon.png /kclient/public/icon.png
 COPY --chmod=664 icon.png /kclient/public/favicon.ico
 
