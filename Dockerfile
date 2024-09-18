@@ -138,7 +138,7 @@ ENV \
 
 # add local files
 COPY /root /
-COPY --chmod=a+x ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
+COPY --chmod=755 ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 COPY --chmod=664 icon.png /kclient/public/icon.png
 COPY --chmod=664 icon.png /kclient/public/favicon.ico
 
