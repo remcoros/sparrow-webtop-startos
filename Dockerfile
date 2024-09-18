@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-36987b11-ls57 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-12c6f55b-ls87 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
@@ -50,6 +50,8 @@ RUN \
     fonts-noto-core \
     intel-media-va-driver \
     mesa-va-drivers \
+    mesa-vulkan-drivers \
+    x11-apps \
     xserver-xorg-video-amdgpu \
     xserver-xorg-video-ati \
     xserver-xorg-video-intel \
