@@ -1,4 +1,4 @@
 # run a compositor to get transparency effects
 compton -b
 
-/opt/sparrow/bin/Sparrow
+dbus-launch /opt/sparrow/bin/Sparrow
