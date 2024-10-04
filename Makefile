@@ -11,6 +11,7 @@ PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 TS_FILES := $(shell find ./ -name \*.ts)
 ROOT_FILES := $(shell find ./root)
 ASSET_FILES := $(shell find ./assets/compat)
+PATCH_FILES := $(shell find ./patches)
 
 .DELETE_ON_ERROR:
 
@@ -43,7 +44,7 @@ clean:
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
 
-docker-images/aarch64.tar: manifest.yaml Dockerfile.aarch64 docker_entrypoint.sh $(ROOT_FILES)
+docker-images/aarch64.tar: manifest.yaml Dockerfile.aarch64 docker_entrypoint.sh $(ROOT_FILES) $(PATCH_FILES)
 ifeq ($(ARCH),x86_64)
 else
 	mkdir -p docker-images
@@ -58,7 +59,7 @@ else
 		--platform=linux/arm64 -o type=docker,dest=docker-images/aarch64.tar -f Dockerfile.aarch64 .
 endif
 
-docker-images/x86_64.tar: manifest.yaml Dockerfile docker_entrypoint.sh $(ROOT_FILES)
+docker-images/x86_64.tar: manifest.yaml Dockerfile docker_entrypoint.sh $(ROOT_FILES) $(PATCH_FILES)
 ifeq ($(ARCH),aarch64)
 else
 	mkdir -p docker-images

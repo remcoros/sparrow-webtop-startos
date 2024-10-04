@@ -1,8 +1,9 @@
 id: sparrow-webtop
 title: "Sparrow"
-version: 2.0.0
+version: 2.0.0.1
 release-notes: |
-  * Update to Sparrow 2.0.0 - See [full changelog](https://github.com/sparrowwallet/sparrow/releases/tag/2.0.0)
+  * Add 'Automatically reconnect' option. Enable this to reconnect to the desktop when the connection is lost or the browser tab has been idle for too long.
+  * fix a minor issue when browser tab becomes idle (Cannot read properties of undefined (reading 'lastActiveAt'))
 license: GPLv3
 wrapper-repo: "https://github.com/remcoros/sparrow-webtop-startos"
 upstream-repo: "https://github.com/sparrowwallet/sparrow"

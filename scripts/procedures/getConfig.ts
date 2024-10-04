@@ -38,6 +38,12 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
     "pattern-description": "Must not contain newline or quote characters.",
     copyable: true,
   },
+  reconnect: {
+    type: "boolean",
+    name: "Automatically reconnect",
+    description: "Automatically reconnect when the connection to the desktop is lost or the browser tab has been idle for too long.",
+    default: false,
+  },
   sparrow: {
     type: "object",
     name: "Sparrow settings",

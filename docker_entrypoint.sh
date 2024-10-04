@@ -89,6 +89,13 @@ if [ $(yq e '.sparrow.managesettings' /root/data/start9/config.yaml) = "true" ];
   esac
 fi
 
+# remove reference to non-existing file, see: https://github.com/linuxserver/kclient/issues/8
+sed -i '/<script src="public\/js\/pcm-player\.js"><\/script>/d' /kclient/public/index.html
+
+# add '&reconnect=' setting to kclient html
+RECONNECT=$(yq e '.reconnect' /root/data/start9/config.yaml)
+sed -i "s/\(index\.html?autoconnect=1\)/&\&reconnect=$RECONNECT/" /kclient/public/index.html
+
 # setup a proxy on localhost, Sparrow will not use Tor for local addresses
 # this means we can connect straight to bitcoind/electrs and use Tor for everything else (whirlpool)
 /usr/bin/socat tcp-l:8332,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:bitcoind.embassy:8332 &
