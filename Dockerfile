@@ -124,8 +124,6 @@ RUN \
   echo "**** install Sparrow ****" && \
   # sparrow requires this directory to exist
   mkdir -p /usr/share/desktop-directories/ && \
-  # work around an issue where Sparrow post-inst script calls udevadm, but this doesn't work in containers
-  mv /bin/udevadm /bin/udevadm.bak && \
   # Download and install Sparrow (todo: gpg sig verification)
   wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt \
@@ -138,7 +136,6 @@ RUN \
   DEBIAN_FRONTEND=noninteractive \
   apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
   # cleanup
-  mv /bin/udevadm.bak /bin/udevadm && \
   rm ./sparrow* ./pgp_keys.asc
 
 # start from scratch so we create smaller layers in the resulting image

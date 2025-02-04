@@ -1,9 +1,8 @@
 id: sparrow-webtop
 title: "Sparrow"
-version: 2.1.0
+version: 2.1.1
 release-notes: |
-  * Update Sparrow to 2.1.0 - [Release Notes](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.0)
-  * Update bundling process to use Deno emit module
+  * Update Sparrow to 2.1.1. Release Notes: [2.1.0](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.0), [2.1.1](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.1)
 license: GPLv3
 wrapper-repo: "https://github.com/remcoros/sparrow-webtop-startos"
 upstream-repo: "https://github.com/sparrowwallet/sparrow"
