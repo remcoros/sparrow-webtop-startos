@@ -1,5 +1,5 @@
-SPARROW_VERSION := 2.0.0
-SPARROW_DEBVERSION := 2.0.0-1
+SPARROW_VERSION := 2.1.0
+SPARROW_DEBVERSION := 2.1.0-1
 SPARROW_PGP_SIG := E94618334C674B40
 # sha256 hashes can be found in https://github.com/mikefarah/yq/releases/download/v4.40.7/checksums-bsd
 YQ_VERSION := 4.40.7
@@ -42,7 +42,7 @@ clean:
 	rm -f scripts/*.js
 
 scripts/embassy.js: $(TS_FILES)
-	deno bundle scripts/embassy.ts scripts/embassy.js
+	deno run --allow-read --allow-write --allow-env --allow-net scripts/bundle.ts
 
 docker-images/aarch64.tar: manifest.yaml Dockerfile.aarch64 docker_entrypoint.sh $(ROOT_FILES) $(PATCH_FILES)
 ifeq ($(ARCH),x86_64)
