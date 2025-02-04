@@ -1,9 +1,9 @@
 id: sparrow-webtop
 title: "Sparrow"
-version: 2.0.0.1
+version: 2.1.0
 release-notes: |
-  * Add 'Automatically reconnect' option. Enable this to reconnect to the desktop when the connection is lost or the browser tab has been idle for too long.
-  * fix a minor issue when browser tab becomes idle (Cannot read properties of undefined (reading 'lastActiveAt'))
+  * Update Sparrow to 2.1.0 - [Release Notes](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.0)
+  * Update bundling process to use Deno emit module
 license: GPLv3
 wrapper-repo: "https://github.com/remcoros/sparrow-webtop-startos"
 upstream-repo: "https://github.com/sparrowwallet/sparrow"
@@ -69,7 +69,7 @@ interfaces:
       - http
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <28.0.0"
+    version: ">=0.21.1.2 <30.0.0"
     requirement:
       type: "opt-in"
       how: "Select Bitcoin Core as the server"

@@ -2,7 +2,7 @@
 # modified to apply 'novnc.patch' (fixing a disconnect/reconnect issue)
 FROM node:12-buster AS wwwstage
 
-ARG KASMWEB_RELEASE="5ba4695e6526a27b8e38ec8d55dc33b39143e68a"
+ARG KASMWEB_RELEASE="46412d23aff1f45dffa83fafb04a683282c8db58"
 
 RUN \
   echo "**** build clientside ****" && \
@@ -33,7 +33,7 @@ RUN \
   cp index.html vnc.html && \
   mkdir Downloads
 
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-f7a8978f-ls89 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-2db38f7a-ls103 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
@@ -124,6 +124,8 @@ RUN \
   echo "**** install Sparrow ****" && \
   # sparrow requires this directory to exist
   mkdir -p /usr/share/desktop-directories/ && \
+  # work around an issue where Sparrow post-inst script calls udevadm, but this doesn't work in containers
+  mv /bin/udevadm /bin/udevadm.bak && \
   # Download and install Sparrow (todo: gpg sig verification)
   wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt \
@@ -136,6 +138,7 @@ RUN \
   DEBIAN_FRONTEND=noninteractive \
   apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
   # cleanup
+  mv /bin/udevadm.bak /bin/udevadm && \
   rm ./sparrow* ./pgp_keys.asc
 
 # start from scratch so we create smaller layers in the resulting image
