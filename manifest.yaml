@@ -1,8 +1,8 @@
 id: sparrow-webtop
 title: "Sparrow"
-version: 2.1.2
+version: 2.1.3
 release-notes: |
-  * Update Sparrow to 2.1.2 - [Release Notes](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.2)
+  * Update Sparrow to 2.1.3 - [Release Notes](https://github.com/sparrowwallet/sparrow/releases/tag/2.1.3)
 license: GPLv3
 wrapper-repo: "https://github.com/remcoros/sparrow-webtop-startos"
 upstream-repo: "https://github.com/sparrowwallet/sparrow"
