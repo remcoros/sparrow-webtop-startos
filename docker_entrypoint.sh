@@ -47,13 +47,20 @@ if [ $(yq e '.sparrow.managesettings' /root/data/start9/config.yaml) = "true" ];
   case "$(yq e '.sparrow.server.type' /root/data/start9/config.yaml)" in
   "bitcoind")
     echo "Configuring Sparrow for Bitcoin Core"
-    export BITCOIND_USER=$(yq e '.sparrow.server.user' /root/data/start9/config.yaml)
-    export BITCOIND_PASS=$(yq e '.sparrow.server.password' /root/data/start9/config.yaml)
+    #export BITCOIND_USER=$(yq e '.sparrow.server.user' /root/data/start9/config.yaml)
+    #export BITCOIND_PASS=$(yq e '.sparrow.server.password' /root/data/start9/config.yaml)
+    # yq e -i '
+    #   .serverType = "BITCOIN_CORE" |
+    #   .coreServer = "http://127.0.0.1:8332" |
+    #   .coreAuthType = "USERPASS" |
+    #   .coreAuth = strenv(BITCOIND_USER) + ":" + strenv(BITCOIND_PASS)' -o=json /config/.sparrow/config
+    # TODO: remove this when .cookie file has correct permissions
+    chmod 644 /mnt/bitcoind/.cookie
     yq e -i '
       .serverType = "BITCOIN_CORE" |
       .coreServer = "http://127.0.0.1:8332" |
-      .coreAuthType = "USERPASS" |
-      .coreAuth = strenv(BITCOIND_USER) + ":" + strenv(BITCOIND_PASS)' -o=json /config/.sparrow/config
+      .coreAuthType = "COOKIE" |
+      .coreDataDir = "/mnt/bitcoind"' -o=json /config/.sparrow/config
     ;;
   "electrs")
     echo "Configuring Sparrow for Electrs"
@@ -98,7 +105,7 @@ sed -i "s/\(index\.html?autoconnect=1\)/&\&reconnect=$RECONNECT/" /kclient/publi
 
 # setup a proxy on localhost, Sparrow will not use Tor for local addresses
 # this means we can connect straight to bitcoind/electrs and use Tor for everything else (whirlpool)
-/usr/bin/socat tcp-l:8332,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:bitcoind.embassy:8332 &
-/usr/bin/socat tcp-l:50001,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:electrs.embassy:50001 &
+/usr/bin/socat tcp-l:8332,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:bitcoind.startos:8332 &
+/usr/bin/socat tcp-l:50001,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:electrs.startos:50001 &
 
 exec /init
