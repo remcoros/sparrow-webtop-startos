@@ -6,7 +6,7 @@ YQ_VERSION := 4.40.7
 YQ_SHA_AMD64 := 4f13ee9303a49f7e8f61e7d9c87402e07cc920ae8dfaaa8c10d7ea1b8f9f48ed
 YQ_SHA_ARM64 := a84f2c8f105b70cd348c3bf14048aeb1665c2e7314cbe9aaff15479f268b8412
 
-.PHONY: all clean install check-deps check-init ingredients
+.PHONY: all clean install check-deps check-init ingredients x86 arm
 
 .DELETE_ON_ERROR:
 
@@ -39,10 +39,14 @@ ${PACKAGE_ID}.s9pk: $(INGREDIENTS) | check-deps check-init
 x86: $(INGREDIENTS) | check-deps check-init
 	@$(MAKE) --no-print-directory ingredients
 	BUILD=x86 start-cli s9pk pack
+	@echo " Done!"
+	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
 
 arm: $(INGREDIENTS) | check-deps check-init
 	@$(MAKE) --no-print-directory ingredients
 	BUILD=arm start-cli s9pk pack
+	@echo " Done!"
+	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
 
 javascript/index.js: $(shell git ls-files startos) tsconfig.json node_modules package.json
 	npm run build
