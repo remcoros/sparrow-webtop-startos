@@ -5,5 +5,5 @@ import { restartService } from './restartService'
 
 export const actions = sdk.Actions.of()
   .addAction(config)
-  .addAction(resetRpcAuth)
+  //.addAction(resetRpcAuth)
   .addAction(restartService)
