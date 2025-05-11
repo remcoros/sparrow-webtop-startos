@@ -1,3 +1,4 @@
+import os from 'os'
 import { sdk } from './sdk'
 import { FileHelper, T } from '@start9labs/start-sdk'
 import { uiPort } from './utils'
@@ -45,10 +46,12 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   }
 
   // main subcontainer (the webtop container)
+  // @todo: review this (should the service do this or can the sdk be smarter?)
+  const imageId = os.arch() == 'x64' ? 'main' : 'mainamd'
   const subcontainer = await sdk.SubContainer.of(
     effects,
     {
-      imageId: 'main',
+      imageId: imageId,
     },
     mounts,
     'main',

@@ -35,23 +35,16 @@ RUN \
 
 FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-945cef3e-ls106 AS buildstage
 
-# these are provided by start-cli
+# these are specified in Makefile
 ARG ARCH
-
-# todo, extract to Makefile?
-ARG SPARROW_VERSION=2.1.3
-ARG SPARROW_DEBVERSION=2.1.3-1
-ARG SPARROW_PGP_SIG=E94618334C674B40
-
-# sha256 hashes can be found in https://github.com/mikefarah/yq/releases/download/v4.40.7/checksums-bsd
-ARG YQ_VERSION=4.40.7
-#ARG YQ_SHA_AMD64 := 4f13ee9303a49f7e8f61e7d9c87402e07cc920ae8dfaaa8c10d7ea1b8f9f48ed
-#ARG YQ_SHA_ARM64 := a84f2c8f105b70cd348c3bf14048aeb1665c2e7314cbe9aaff15479f268b8412
-ARG YQ_SHA=4f13ee9303a49f7e8f61e7d9c87402e07cc920ae8dfaaa8c10d7ea1b8f9f48ed
+ARG PLATFORM
+ARG SPARROW_VERSION
+ARG SPARROW_DEBVERSION
+ARG SPARROW_PGP_SIG
+ARG YQ_VERSION
+ARG YQ_SHA
 
 RUN \
-  # set 'PLATFORM' to 'amd64' or 'arm64' depending on the architecture
-  case "${ARCH}" in x86_64) PLATFORM=amd64 ;; *) PLATFORM=arm64 ;; esac && \
   echo "**** install packages ****" && \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive \
@@ -109,7 +102,7 @@ RUN \
   #DEBIAN_FRONTEND=noninteractive \
   #apt-get upgrade -y && \
   # install yq
-  wget -qO /tmp/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$PLATFORM && \
+  wget -qO /tmp/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${PLATFORM} && \
   echo "${YQ_SHA} /tmp/yq" | sha256sum --check || exit 1 && \ 
   mv /tmp/yq /usr/local/bin/yq && chmod +x /usr/local/bin/yq && \
   echo "**** xfce tweaks ****" && \
@@ -128,13 +121,11 @@ RUN \
 
 # Sparrow
 RUN \
-  # set 'PLATFORM' to 'amd64' or 'arm64' depending on the architecture
-  case "${ARCH}" in x86_64) PLATFORM=amd64 ;; *) PLATFORM=arm64 ;; esac && \
   echo "**** install Sparrow ****" && \
   # sparrow requires this directory to exist
   mkdir -p /usr/share/desktop-directories/ && \
   # Download and install Sparrow (todo: gpg sig verification)
-  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_$PLATFORM.deb \
+  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt.asc \
                https://keybase.io/craigraw/pgp_keys.asc && \
@@ -143,7 +134,7 @@ RUN \
   gpg --status-fd 1 --verify sparrow-${SPARROW_VERSION}-manifest.txt.asc | grep -q "GOODSIG ${SPARROW_PGP_SIG} Craig Raw <craig@sparrowwallet.com>" || exit 1 && \
   sha256sum --check sparrow-${SPARROW_VERSION}-manifest.txt --ignore-missing || exit 1 && \
   DEBIAN_FRONTEND=noninteractive \
-  apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_$PLATFORM.deb && \
+  apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
   # cleanup
   rm ./sparrow* ./pgp_keys.asc
 

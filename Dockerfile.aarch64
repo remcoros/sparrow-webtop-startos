@@ -104,8 +104,8 @@ RUN \
   rm -rf $(ls -d /usr/share/locale/* | grep -vw /usr/share/locale/en) && \
   localedef -i en_US -f UTF-8 en_US.UTF-8 && \
   # upgrade remaining packages
-  DEBIAN_FRONTEND=noninteractive \
-  apt-get upgrade -y && \
+  #DEBIAN_FRONTEND=noninteractive \
+  #apt-get upgrade -y && \
   # install yq
   wget -qO /tmp/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${PLATFORM} && \
   echo "${YQ_SHA} /tmp/yq" | sha256sum --check || exit 1 && \ 
