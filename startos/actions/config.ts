@@ -225,6 +225,16 @@ async function writeSettings(effects: T.Effects, input: InputSpec) {
   //   requestCredentials = true
   // }
 
+  // @todo this does not work (action is not triggered/no task visible in the UI)
+  if (
+    input.sparrow.managesettings &&
+    input.sparrow.server.selection == 'public'
+  ) {
+    sdk.action.requestOwn(effects, config, 'important', {
+      reason: 'Change settings to not use a public electrum server',
+    })
+  }
+
   await store.merge(effects, {
     title: input.title,
     username: input.username,
