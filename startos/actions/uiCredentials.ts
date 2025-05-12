@@ -1,9 +1,9 @@
 import { store } from '../file-models/store.yaml'
 import { sdk } from '../sdk'
 
-export const runtimeInfo = sdk.Action.withoutInput(
+export const uiCredentials = sdk.Action.withoutInput(
   // id
-  'runtime-info',
+  'ui-credentials',
 
   // metadata
   async ({ effects }) => {
@@ -33,7 +33,7 @@ export const runtimeInfo = sdk.Action.withoutInput(
             type: 'single',
             name: 'Username',
             description: 'Username for the web UI',
-            value: conf.sparrow.server.user,
+            value: conf.username,
             copyable: true,
             masked: false,
             qr: false,
@@ -42,7 +42,7 @@ export const runtimeInfo = sdk.Action.withoutInput(
             type: 'single',
             name: 'Password',
             description: 'Password for the web UI',
-            value: conf.sparrow.server.password,
+            value: conf.password,
             copyable: true,
             masked: true,
             qr: false,
