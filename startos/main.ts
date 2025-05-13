@@ -1,10 +1,9 @@
 import os from 'os'
 import { sdk } from './sdk'
 import { T } from '@start9labs/start-sdk'
-import { canConnectToRpc, uiPort } from './utils'
-import { config } from './actions/config'
+import { uiPort } from './utils'
 import { store } from './file-models/store.yaml'
-import { resetRpcAuth } from './actions/resetRpcAuth'
+import { serverHealthCheck } from './healthchecks/server'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
@@ -87,65 +86,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   // if we are managing the Sparrow settings, add a health check to display the connected server
   if (conf.sparrow.managesettings) {
-    const checkConnectedNode = sdk.HealthCheck.of(effects, {
-      name: 'Connected Server',
-      fn: async () => {
-        if (conf.sparrow.server.type == 'bitcoind') {
-          // if (cookieChanged) {
-          //   return {
-          //     message: 'Bitcoin Cookie changed, please restart the service',
-          //     result: 'failure',
-          //   }
-          // }
-
-          // check if we can connect to the local bitcoin node
-          var status = await canConnectToRpc(
-            conf.sparrow.server.user,
-            conf.sparrow.server.password,
-            3000,
-          )
-
-          if (status != 'success') {
-            if (status == 'auth-error') {
-              // if we get an auth error, reset the rpc credentials and ask bitcoind to recreate them
-              // disabled for now (same issue as above)
-              // await sdk.action.run({
-              //   actionId: 'reset-rpc-auth',
-              //   effects,
-              //   input: {},
-              // })
-            }
-            return {
-              message: 'Failed to connect to local Bitcoin node',
-              result: 'failure',
-            }
-          }
-
-          return {
-            message: 'Connected to local Bitcoin node',
-            result: 'success',
-          }
-        }
-
-        if (conf.sparrow.server.type == 'electrs') {
-          // @todo: check if we can connect to the local electrum server
-          return {
-            message: 'Using local electrum server',
-            result: 'success',
-          }
-        }
-
-        sdk.action.requestOwn(effects, config, 'important', {
-          reason: 'Change settings to not use a public electrum server',
-        })
-
-        return {
-          message: 'Using a public electrum server',
-          result: 'failure',
-        }
-      },
-      id: 'check-connected-node',
-    })
+    const checkConnectedNode = serverHealthCheck(effects, conf)
 
     healthReceipts.push(checkConnectedNode)
   }
