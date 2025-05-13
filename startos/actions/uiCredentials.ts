@@ -9,11 +9,11 @@ export const uiCredentials = sdk.Action.withoutInput(
   async ({ effects }) => {
     var conf = await store.read().const(effects)
     return {
-      name: 'Web UI Credentials',
+      name: 'Show UI Credentials',
       description: 'Show the credentials for the web UI.',
       warning: null,
       allowedStatuses: 'any',
-      group: null,
+      group: 'Configuration',
       visibility: conf ? 'enabled' : 'hidden',
     }
   },

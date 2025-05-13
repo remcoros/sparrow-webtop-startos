@@ -18,7 +18,7 @@ export const resetRpcAuth = sdk.Action.withoutInput(
         'Create new Bitcoin RPC credentials for Sparrow. NOTE: this will restart the service!',
       warning: null,
       allowedStatuses: 'any',
-      group: 'Configuration',
+      group: 'Maintenance',
       visibility: serverType == 'bitcoind' ? 'enabled' : 'hidden',
     }
   },
