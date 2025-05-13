@@ -1,21 +1,24 @@
 import { matches, FileHelper, T } from '@start9labs/start-sdk'
-const { object, string, boolean } = matches
+const { object, string, boolean, oneOf, literal } = matches
 
 const shape = object({
   title: string,
   username: string,
-  password: string,
-  reconnect: boolean,
+  password: string.optional(),
+  reconnect: boolean.onMismatch(false),
   sparrow: object({
     managesettings: boolean,
     server: object({
-      type: string,
+      type: oneOf(
+        literal('electrs'),
+        literal('bitcoind'),
+        literal('public'),
+      ).onMismatch('electrs'),
       user: string,
       password: string,
-      requestCredentials: boolean,
     }),
     proxy: object({
-      type: string,
+      type: oneOf(literal('tor'), literal('none')).onMismatch('tor'),
     }),
   }),
 })
@@ -35,7 +38,6 @@ export const createDefaultStore = async (effects: T.Effects) => {
         server: {
           user: '',
           password: '',
-          requestCredentials: false,
         },
       },
     })
@@ -52,9 +54,8 @@ export const createDefaultStore = async (effects: T.Effects) => {
       : 'public'
 
   await store.write(effects, {
-    title: 'Sparrow on Start9',
+    title: 'Sparrow on StartOS',
     username: 'webtop',
-    password: '',
     reconnect: false,
     sparrow: {
       managesettings: true,
@@ -62,7 +63,6 @@ export const createDefaultStore = async (effects: T.Effects) => {
         type: serverType,
         user: '',
         password: '',
-        requestCredentials: serverType == 'bitcoind',
       },
       proxy: {
         type: 'tor',

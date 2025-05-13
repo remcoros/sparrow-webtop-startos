@@ -47,20 +47,20 @@ if [ $(yq e '.sparrow.managesettings' /root/data/start9/config.yaml) = "true" ];
   case "$(yq e '.sparrow.server.type' /root/data/start9/config.yaml)" in
   "bitcoind")
     echo "Configuring Sparrow for Bitcoin Core"
-    #export BITCOIND_USER=$(yq e '.sparrow.server.user' /root/data/start9/config.yaml)
-    #export BITCOIND_PASS=$(yq e '.sparrow.server.password' /root/data/start9/config.yaml)
-    # yq e -i '
-    #   .serverType = "BITCOIN_CORE" |
-    #   .coreServer = "http://127.0.0.1:8332" |
-    #   .coreAuthType = "USERPASS" |
-    #   .coreAuth = strenv(BITCOIND_USER) + ":" + strenv(BITCOIND_PASS)' -o=json /config/.sparrow/config
-    # TODO: remove this when .cookie file has correct permissions
-    chmod 644 /mnt/bitcoind/.cookie
+    export BITCOIND_USER=$(yq e '.sparrow.server.user' /root/data/start9/config.yaml)
+    export BITCOIND_PASS=$(yq e '.sparrow.server.password' /root/data/start9/config.yaml)
     yq e -i '
       .serverType = "BITCOIN_CORE" |
       .coreServer = "http://127.0.0.1:8332" |
-      .coreAuthType = "COOKIE" |
-      .coreDataDir = "/mnt/bitcoind"' -o=json /config/.sparrow/config
+      .coreAuthType = "USERPASS" |
+      .coreAuth = strenv(BITCOIND_USER) + ":" + strenv(BITCOIND_PASS)' -o=json /config/.sparrow/config
+    # TODO: remove this when .cookie file has correct permissions
+    chmod 644 /mnt/bitcoind/.cookie
+    #yq e -i '
+    #  .serverType = "BITCOIN_CORE" |
+    #  .coreServer = "http://127.0.0.1:8332" |
+    #  .coreAuthType = "COOKIE" |
+    #  .coreDataDir = "/mnt/bitcoind"' -o=json /config/.sparrow/config
     ;;
   "electrs")
     echo "Configuring Sparrow for Electrs"
