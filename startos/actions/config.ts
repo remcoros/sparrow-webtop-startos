@@ -2,9 +2,6 @@ import { sdk } from '../sdk'
 import { T, utils } from '@start9labs/start-sdk'
 import { createDefaultStore, store } from '../file-models/store.yaml'
 import { Variants } from '@start9labs/start-sdk/base/lib/actions/input/builder'
-import { generateRpcPassword } from '../utils'
-import { generateRpcUserDependent } from 'bitcoind-startos/startos/actions/generateRpcUserDependent'
-import { resetRpcAuth } from './resetRpcAuth'
 
 const { InputSpec, Value } = sdk
 
@@ -14,8 +11,8 @@ export const inputSpec = InputSpec.of({
     description:
       'This value will be displayed as the title of your browser tab.',
     required: true,
-    default: 'Sparrow on Start9',
-    placeholder: 'Sparrow on Start9',
+    default: 'Sparrow on StartOS',
+    placeholder: 'Sparrow on StartOS',
     patterns: [utils.Patterns.ascii],
   }),
   username: Value.text({
@@ -62,25 +59,28 @@ export const inputSpec = InputSpec.of({
         async ({ effects }) => {
           // determine default server type and disabled options
           const installedPackages = await effects.getInstalledPackages()
-          let disabled: string[] = []
           let serverType: 'electrs' | 'bitcoind' | 'public' = 'public'
+          //let disabled: string[] = []
 
           if (installedPackages.includes('bitcoind')) {
             serverType = 'bitcoind'
-          } else {
-            disabled.push('bitcoind')
           }
+          // else {
+          //   disabled.push('bitcoind')
+          // }
+
           if (installedPackages.includes('electrs')) {
             serverType = 'electrs'
-          } else {
-            disabled.push('electrs')
           }
+          // else {
+          //   disabled.push('electrs')
+          // }
 
           return {
             name: 'Server',
             description: 'Bitcoin/Electrum Server',
             default: serverType,
-            disabled: disabled,
+            disabled: false,
           }
         },
         Variants.of({
@@ -146,7 +146,7 @@ export const config = sdk.Action.withInput(
 type InputSpec = typeof inputSpec._TYPE
 type PartialInputSpec = typeof inputSpec._PARTIAL
 
-async function readSettings(effects: any): Promise<PartialInputSpec> {
+async function readSettings(effects: T.Effects): Promise<PartialInputSpec> {
   let settings = await store.read().once()
   if (!settings) {
     await createDefaultStore(effects)
@@ -161,78 +161,54 @@ async function readSettings(effects: any): Promise<PartialInputSpec> {
     sparrow: {
       managesettings: settings.sparrow.managesettings,
       server: {
-        // @todo 'as any' doesn't work here (error in os ui/logs)
-        selection: settings.sparrow.server.type as
-          | 'electrs'
-          | 'bitcoind'
-          | 'public'
-          | undefined,
+        selection: settings.sparrow.server.type,
       },
       proxy: {
-        selection: settings.sparrow.proxy.type as 'tor' | 'none' | undefined,
+        selection: settings.sparrow.proxy.type,
       },
     },
   }
 }
 
 async function writeSettings(effects: T.Effects, input: InputSpec) {
-  const currentConf = await store.read().once()
-  // const currentServerType = currentConf?.sparrow?.server.type
-
-  // let username = currentConf?.sparrow?.server.user || ''
-  // let password = currentConf?.sparrow?.server.password || ''
-  // // if the server type is changed to bitcoind, and we don't have a username/password yet,
-  // // generate a new username/password and request credentials from bitcoind
-  // if (
-  //   input.sparrow.server.selection == 'bitcoind' &&
-  //   currentServerType != 'bitcoind'
-  // ) {
-  //   if (!username || !password) {
-  //     console.log('request credentials from bitcoind')
-  //     await sdk.action.requestOwn(effects, resetRpcAuth, 'critical', {})
-  //     console.log('request credentials from bitcoind done')
-
-  //     // @todo remove when this works from inside the resetRpcAuth action
-  //     const conf = (await store.read().once())!
-  //     await sdk.action.request(
-  //       effects,
-  //       'bitcoind',
-  //       generateRpcUserDependent,
-  //       'critical',
-  //       {
-  //         replayId: 'bitcoind-rpc',
-  //         input: {
-  //           kind: 'partial',
-  //           value: {
-  //             username: conf.sparrow.server.user,
-  //             password: conf.sparrow.server.password,
-  //           },
-  //         },
-  //       },
-  //     )
-  //   }
-  // }
-
-  // let username = currentConf?.sparrow?.server.user || ''
-  // let password = currentConf?.sparrow?.server.password || ''
-  // let requestCredentials = false
-  // if (
-  //   input.sparrow.server.selection == 'bitcoind' &&
-  //   (!username || !password)
-  // ) {
-  //   username = 'sparrow_' + generateRpcPassword(6)
-  //   password = generateRpcPassword()
-  //   requestCredentials = true
-  // }
-
-  // @todo this does not work (action is not triggered/no task visible in the UI)
   if (
     input.sparrow.managesettings &&
     input.sparrow.server.selection == 'public'
   ) {
-    sdk.action.requestOwn(effects, config, 'important', {
-      reason: 'Change settings to not use a public electrum server',
-    })
+    console.log('using public electrum server')
+
+    // @todo this does not work (request config action from config action)
+    // await sdk.action.requestOwn(effects, config, 'important', {
+    //   reason: 'Change settings to not use a public electrum server',
+    // })
+  }
+
+  await sdk.action.clearRequest(effects, 'reset-rpc-auth')
+
+  if (
+    input.sparrow.managesettings &&
+    input.sparrow.server.selection == 'bitcoind'
+  ) {
+    console.log('using bitcoind server')
+
+    const currentConf = await store.read().once()
+    // check if we need to request new credentials
+    if (
+      !currentConf?.sparrow.server.user ||
+      !currentConf?.sparrow.server.password
+    ) {
+      console.log('resetting rpc credentials')
+
+      await sdk.action.run({
+        actionId: 'reset-rpc-auth',
+        effects,
+        input: {},
+      })
+    } else {
+      //await sdk.action.clearRequest(effects, 'reset-rpc-auth')
+    }
+  } else {
+    //await sdk.action.clearRequest(effects, 'reset-rpc-auth')
   }
 
   await store.merge(effects, {
@@ -244,9 +220,6 @@ async function writeSettings(effects: T.Effects, input: InputSpec) {
       managesettings: input.sparrow.managesettings,
       server: {
         type: input.sparrow.server.selection,
-        //user: username,
-        //password: password,
-        //requestCredentials: requestCredentials,
       },
       proxy: {
         type: input.sparrow.proxy.selection,

@@ -13,12 +13,12 @@ export const resetRpcAuth = sdk.Action.withoutInput(
     const serverType = conf?.sparrow.server.type
 
     return {
-      name: 'Recreate RPC Credentials',
+      name: 'Create RPC Credentials',
       description:
-        'This will ask the Bitcoin service to recreate the RPC credentials.',
+        'Create new Bitcoin RPC credentials for Sparrow. NOTE: this will restart the service!',
       warning: null,
       allowedStatuses: 'any',
-      group: 'Maintenance',
+      group: 'Configuration',
       visibility: serverType == 'bitcoind' ? 'enabled' : 'hidden',
     }
   },
@@ -28,43 +28,37 @@ export const resetRpcAuth = sdk.Action.withoutInput(
     const username = 'sparrow_' + generateRpcPassword(6)
     const password = generateRpcPassword()
 
+    console.log('resetRpcAuth: username:', username)
+
+    console.log('resetRpcAuth: merge username and password into store')
     await store.merge(effects, {
       sparrow: {
         server: {
-          user: '',
-          password: '',
-          requestCredentials: true,
+          user: username,
+          password: password,
         },
       },
     })
 
     // request to create rpc credentials in bitcoind
-    // @todo requesting action from another action doesn't work?
-    // await effects.action.run({
-    //   packageId: 'bitcoind',
-    //   actionId: generateRpcUserDependent.id,
-    //   input: {
-    //     username: username,
-    //     password: password,
-    //   },
-    // })
-
-    // await sdk.action.request(
-    //   effects,
-    //   'bitcoind',
-    //   generateRpcUserDependent,
-    //   'critical',
-    //   {
-    //     replayId: 'bitcoind-rpc',
-    //     input: {
-    //       kind: 'partial',
-    //       value: {
-    //         username: username,
-    //         password: password,
-    //       },
-    //     },
-    //   },
-    // )
+    console.log('resetRpcAuth: requesting bitcoind-rpc action')
+    await sdk.action.request(
+      effects,
+      'bitcoind',
+      generateRpcUserDependent,
+      'critical',
+      {
+        replayId: 'request-rpc-credentials',
+        reason: 'Create RPC credentials for Sparrow',
+        input: {
+          kind: 'partial',
+          value: {
+            username: username,
+            password: password,
+          },
+        },
+      },
+    )
 
     return {
       version: '1',

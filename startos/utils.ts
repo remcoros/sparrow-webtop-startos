@@ -10,13 +10,18 @@ export const generateRpcPassword = (len = 16) =>
     .map((b) => chars[b % chars.length])
     .join('')
 
-// canConnectToBTCRpc
-// @todo remove if we decide not to use it
-export async function canConnectToBTCRpc(
+// canConnectToRpc
+export type RpcConnectionStatus =
+  | 'success'
+  | 'timeout'
+  | 'auth-error'
+  | 'network-error'
+
+export async function canConnectToRpc(
   username: string,
   password: string,
-  timeout: number = 5000,
-): Promise<boolean> {
+  timeout: number = 3000,
+): Promise<RpcConnectionStatus> {
   const rpcUrl = 'http://bitcoind.startos:8332'
   const controller = new AbortController()
   const timeoutHandle = setTimeout(() => controller.abort(), timeout)
@@ -42,9 +47,21 @@ export async function canConnectToBTCRpc(
       signal: controller.signal,
     })
 
-    return response.ok
-  } catch (err) {
-    return false
+    if (response.status === 401 || response.status === 403) {
+      return 'auth-error'
+    }
+
+    if (response.ok) {
+      return 'success'
+    }
+
+    return 'network-error'
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      return 'timeout'
+    }
+
+    return 'network-error'
   } finally {
     clearTimeout(timeoutHandle)
   }

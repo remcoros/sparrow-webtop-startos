@@ -8,7 +8,7 @@ const YQ_VERSION = '4.40.7'
 
 // the following allows us to build the service for x86 or arm64 specifically
 // use: 'make x86' or 'make arm' ('make' will build both)
-const BUILD = process.env.BUILD || '' 
+const BUILD = process.env.BUILD || ''
 
 // @todo we need to define two images and decide which one to use when creating
 // the subcontainer (in main.ts), is this correct?
@@ -19,7 +19,8 @@ const defaultBuildArgs = {
   SPARROW_PGP_SIG: SPARROW_PGP_SIG,
   YQ_VERSION: YQ_VERSION,
 }
-const amdImage: SDKImageInputSpec = {
+
+const main_x64: SDKImageInputSpec = {
   arch: ['x86_64'],
   source: {
     dockerBuild: {
@@ -35,7 +36,8 @@ const amdImage: SDKImageInputSpec = {
     },
   },
 }
-const armImage: SDKImageInputSpec = {
+
+const main_aarch64: SDKImageInputSpec = {
   arch: ['aarch64'],
   source: {
     dockerBuild: {
@@ -54,10 +56,10 @@ const armImage: SDKImageInputSpec = {
 // @todo name of images cannot contain capital letters, underscores, numbers?
 const images: Record<string, SDKImageInputSpec> =
   BUILD === 'x86'
-    ? { main: amdImage }
+    ? { 'main': main_x64 }
     : BUILD === 'arm'
-      ? { main: armImage }
-      : { main: amdImage, mainamd: armImage }
+      ? { 'main-aarch': main_aarch64 }
+      : { 'main': main_x64, 'main-aarch': main_aarch64 }
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
@@ -74,7 +76,9 @@ export const manifest = setupManifest({
   },
   volumes: ['main', 'userdir'],
   images: images,
-  hardwareRequirements: {},
+  hardwareRequirements: {
+    //arch: ['x86_64', 'aarch64'],
+  },
   alerts: {
     install: null,
     update: null,
