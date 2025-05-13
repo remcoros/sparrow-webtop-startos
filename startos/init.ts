@@ -12,33 +12,14 @@ const preInstall = sdk.setupPreInstall(async ({ effects }) => {
   console.log('setupPreInstall...')
 
   await createDefaultStore(effects)
-  
-  // // check if config file exists
-  // const conf = await store.read().once()
-
-  // if (conf) {
-  //   console.log('Sparrow config file already exists')
-
-  //   // overwrite the rpc user/password with a new one on new installs
-  //   // @todo check if this hook runs on every install/update, from 035, etc.
-  //   await store.merge(effects, {
-  //     sparrow: {
-  //       server: {
-  //         user: 'sparrow_' + generateRpcPassword(6),
-  //         password: generateRpcPassword(),
-  //       },
-  //     },
-  //   })
-  // } else {
-  //   console.log('Sparrow config file does not exist, creating it')
-  //   await createDefaultStore(effects)
-  // }
 })
 
 // **** PostInstall ****
 const postInstall = sdk.setupPostInstall(async ({ effects }) => {
   // require the config action to run once, to have a password for the ui set
-  await sdk.action.requestOwn(effects, config, 'critical', {})
+  await sdk.action.requestOwn(effects, config, 'critical', {
+    reason: 'Configure default settings',
+  })
 })
 
 // **** Uninstall ****

@@ -1,20 +1,16 @@
 import os from 'os'
 import { sdk } from './sdk'
-import { FileHelper, T } from '@start9labs/start-sdk'
-import { uiPort } from './utils'
+import { T } from '@start9labs/start-sdk'
+import { canConnectToRpc, uiPort } from './utils'
 import { config } from './actions/config'
 import { store } from './file-models/store.yaml'
-import { restartService } from './actions/restartService'
+import { resetRpcAuth } from './actions/resetRpcAuth'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
-  console.info('Setting up Sparrow webtop...')
+  console.info('setupMain: Setting up Sparrow webtop...')
 
   // setup a watch on the store file for changes (this restarts the service)
-  const conf = await store.read().const(effects)
-  if (!conf) {
-    sdk.action.requestOwn(effects, config, 'critical', {})
-    throw new Error('Sparrow config file does not exist')
-  }
+  const conf = (await store.read().const(effects))!
 
   let mounts = sdk.Mounts.of()
     .mountVolume({
@@ -30,24 +26,27 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       readonly: false,
     })
 
+  /*
   // mount the bitcoin data directory if we are using bitcoind
   // @todo: mount only the .cookie file (could not get this to work)
-  // @todo: when updating using 'make install' while the container is running,
-  // the update failed because the volume was in use?
   if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
     mounts = mounts.mountDependency({
       dependencyId: 'bitcoind',
       volumeId: 'main',
+      //subpath: '.cookie',
+      //mountpoint: '/mnt/bitcoind/.cookie',
+      //type: 'file',
       subpath: null,
       mountpoint: '/mnt/bitcoind',
       // @todo: this should be readonly, but we need to change its permissions
       readonly: false,
     })
   }
+  */
 
   // main subcontainer (the webtop container)
   // @todo: review this (should the service do this or can the sdk be smarter?)
-  const imageId = os.arch() == 'x64' ? 'main' : 'mainamd'
+  const imageId = os.arch() == 'x64' ? 'main' : 'main-aarch'
   const subcontainer = await sdk.SubContainer.of(
     effects,
     {
@@ -57,6 +56,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     'main',
   )
 
+  /*
   // Detect when the bitcoind cookie changes and report it as a health check failure
   // We do this instead of automatically restarting the service.
   let cookieChanged = false
@@ -81,6 +81,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         }
       })
   }
+  */
 
   const healthReceipts: T.HealthCheck[] = []
 
@@ -90,22 +91,46 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       name: 'Connected Server',
       fn: async () => {
         if (conf.sparrow.server.type == 'bitcoind') {
-          if (cookieChanged) {
+          // if (cookieChanged) {
+          //   return {
+          //     message: 'Bitcoin Cookie changed, please restart the service',
+          //     result: 'failure',
+          //   }
+          // }
+
+          // check if we can connect to the local bitcoin node
+          var status = await canConnectToRpc(
+            conf.sparrow.server.user,
+            conf.sparrow.server.password,
+            3000,
+          )
+
+          if (status != 'success') {
+            if (status == 'auth-error') {
+              // if we get an auth error, reset the rpc credentials and ask bitcoind to recreate them
+              // disabled for now (same issue as above)
+              // await sdk.action.run({
+              //   actionId: 'reset-rpc-auth',
+              //   effects,
+              //   input: {},
+              // })
+            }
             return {
-              message: 'Bitcoin Cookie changed, please restart the service',
+              message: 'Failed to connect to local Bitcoin node',
               result: 'failure',
             }
           }
 
           return {
-            message: 'Using the to local Bitcoin node',
+            message: 'Connected to local Bitcoin node',
             result: 'success',
           }
         }
 
         if (conf.sparrow.server.type == 'electrs') {
+          // @todo: check if we can connect to the local electrum server
           return {
-            message: 'Using the local electrum server',
+            message: 'Using local electrum server',
             result: 'success',
           }
         }
@@ -115,7 +140,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         })
 
         return {
-          message: 'Currently using a public electrum server',
+          message: 'Using a public electrum server',
           result: 'failure',
         }
       },

@@ -6,6 +6,6 @@ import { uiCredentials } from './uiCredentials'
 
 export const actions = sdk.Actions.of()
   .addAction(config)
-  //.addAction(resetRpcAuth)
+  .addAction(resetRpcAuth)
   .addAction(restartService)
   .addAction(uiCredentials)

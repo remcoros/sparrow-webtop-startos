@@ -42,7 +42,7 @@ export const uiCredentials = sdk.Action.withoutInput(
             type: 'single',
             name: 'Password',
             description: 'Password for the web UI',
-            value: conf.password,
+            value: conf.password || '',
             copyable: true,
             masked: true,
             qr: false,
