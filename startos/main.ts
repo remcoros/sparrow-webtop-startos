@@ -1,9 +1,11 @@
 import os from 'os'
+import * as fs from 'node:fs/promises'
 import { sdk } from './sdk'
-import { T } from '@start9labs/start-sdk'
+import { T, utils } from '@start9labs/start-sdk'
 import { uiPort } from './utils'
 import { store } from './file-models/store.yaml'
 import { serverHealthCheck } from './healthchecks/server'
+import { sparrow } from './file-models/sparrow.json'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
@@ -11,6 +13,13 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   // setup a watch on the store file for changes (this restarts the service)
   const conf = (await store.read().const(effects))!
 
+  if (!conf.password) {
+    throw new Error('Password is required')
+  }
+
+  /*
+   * Subcontainer setup
+   */
   let mounts = sdk.Mounts.of()
     .mountVolume({
       volumeId: 'main',
@@ -82,6 +91,73 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   }
   */
 
+  /*
+   * Sparrow settings
+   */
+  if (conf.sparrow.managesettings) {
+    let config = {}
+
+    // server config
+    if (conf.sparrow.server.type == 'bitcoind') {
+      config = {
+        ...config,
+        serverType: 'BITCOIN_CORE',
+        // socat proxy, to avoid going over tor (sparrow avoids tor only for local addresses)
+        coreServer: 'http://127.0.0.1:8332',
+        coreAuthType: 'USERPASS',
+        coreAuth: conf.sparrow.server.user + ':' + conf.sparrow.server.password,
+      }
+    } else if (conf.sparrow.server.type == 'electrs') {
+      config = {
+        ...config,
+        serverType: 'ELECTRUM_SERVER',
+        coreServer: 'tcp://127.0.0.1:50001',
+      }
+    } else if (conf.sparrow.server.type == 'public') {
+      config = {
+        ...config,
+        serverType: 'PUBLIC_ELECTRUM_SERVER',
+      }
+    }
+
+    // proxy config
+    if (conf.sparrow.proxy.type == 'tor') {
+      const serverIp = await sdk.getOsIp(effects)
+      config = {
+        ...config,
+        useProxy: true,
+        proxyServer: `${serverIp}:9050`,
+      }
+    } else {
+      config = {
+        ...config,
+        useProxy: false,
+      }
+    }
+
+    // create default config file if it does not exist
+    const configFile = `${subcontainer.rootfs}/config/.sparrow/config`
+    try {
+      await fs.access(configFile, fs.constants.F_OK) // check if configFile exists
+    } catch (e) {
+      await subcontainer.exec([
+        'sh',
+        '-c',
+        `
+         mkdir -p /config/.sparrow && 
+         cp /defaults/.sparrow/config /config/.sparrow/config && 
+         chown -R 1000:1000 /config/.sparrow
+        `,
+      ])
+    }
+
+    // merge with existing config file
+    sparrow.merge(effects, config)
+  }
+
+  /*
+   * Health checks
+   */
   const healthReceipts: T.HealthCheck[] = []
 
   // if we are managing the Sparrow settings, add a health check to display the connected server
@@ -91,10 +167,22 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     healthReceipts.push(checkConnectedNode)
   }
 
+  /*
+   * Daemons
+   */
   return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
     subcontainer: subcontainer,
     command: ['docker_entrypoint.sh'],
     runAsInit: true, // If true, this daemon will be run as PID 1 in the container.
+    env: {
+      PUID: '1000',
+      PGID: '1000',
+      TZ: 'Etc/UTC',
+      TITLE: conf.title,
+      CUSTOM_USER: conf.username,
+      PASSWORD: conf.password,
+      RECONNECT: conf.reconnect ? 'true' : 'false',
+    },
     ready: {
       display: 'Web Interface',
       fn: () =>
