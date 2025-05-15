@@ -47,6 +47,10 @@ ARG YQ_SHA
 RUN \
   echo "**** install packages ****" && \
   apt-get update && \
+  # remove dunst, we use xfce4-notifyd instead
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get remove -y dunst && \
+  # install required packages
   DEBIAN_FRONTEND=noninteractive \
   apt-get install -y --no-install-recommends \
     exo-utils \
@@ -64,8 +68,7 @@ RUN \
     compton \
     # desktop notifications
     xfce4-notifyd \
-    libnotify-bin \
-    notification-daemon \
+    libnotify-bin \    
     xclip \
     # other
     wget \
