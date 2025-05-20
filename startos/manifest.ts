@@ -1,10 +1,9 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 
-const SPARROW_VERSION = '2.1.3'
-const SPARROW_DEBVERSION = '2.1.3-1'
+const SPARROW_VERSION = '2.2.0'
+const SPARROW_DEBVERSION = '2.2.0-1'
 const SPARROW_PGP_SIG = 'E94618334C674B40'
-const YQ_VERSION = '4.40.7'
 
 // the following allows us to build the service for x86 or arm64 specifically
 // use: 'make x86' or 'make arm' ('make' will build both)
@@ -17,7 +16,6 @@ const defaultBuildArgs = {
   SPARROW_VERSION: SPARROW_VERSION,
   SPARROW_DEBVERSION: SPARROW_DEBVERSION,
   SPARROW_PGP_SIG: SPARROW_PGP_SIG,
-  YQ_VERSION: YQ_VERSION,
 }
 
 const main_x64: SDKImageInputSpec = {
@@ -29,9 +27,6 @@ const main_x64: SDKImageInputSpec = {
       buildArgs: {
         ...defaultBuildArgs,
         PLATFORM: 'amd64',
-        // yq sha256 hashes can be found in https://github.com/mikefarah/yq/releases/download/v4.40.7/checksums-bsd
-        YQ_SHA:
-          '4f13ee9303a49f7e8f61e7d9c87402e07cc920ae8dfaaa8c10d7ea1b8f9f48ed',
       },
     },
   },
@@ -46,8 +41,6 @@ const main_aarch64: SDKImageInputSpec = {
       buildArgs: {
         ...defaultBuildArgs,
         PLATFORM: 'arm64',
-        YQ_SHA:
-          'a84f2c8f105b70cd348c3bf14048aeb1665c2e7314cbe9aaff15479f268b8412',
       },
     },
   },
