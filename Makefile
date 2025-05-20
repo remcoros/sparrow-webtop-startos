@@ -1,5 +1,5 @@
-SPARROW_VERSION := 2.1.3
-SPARROW_DEBVERSION := 2.1.3-1
+SPARROW_VERSION := 2.2.0
+SPARROW_DEBVERSION := 2.2.0-1
 SPARROW_PGP_SIG := E94618334C674B40
 # sha256 hashes can be found in https://github.com/mikefarah/yq/releases/download/v4.40.7/checksums-bsd
 YQ_VERSION := 4.40.7

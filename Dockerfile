@@ -33,7 +33,7 @@ RUN \
   cp index.html vnc.html && \
   mkdir Downloads
 
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-945cef3e-ls106 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-7784e3cf-ls114 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
@@ -47,6 +47,10 @@ ARG YQ_SHA
 RUN \
   echo "**** install packages ****" && \
   apt-get update && \
+  # remove dunst, we use xfce4-notifyd instead
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get remove -y dunst && \
+  # install required packages
   DEBIAN_FRONTEND=noninteractive \
   apt-get install -y --no-install-recommends \
     exo-utils \
@@ -65,7 +69,6 @@ RUN \
     # desktop notifications
     xfce4-notifyd \
     libnotify-bin \
-    notification-daemon \
     xclip \
     # other
     wget \
@@ -125,7 +128,7 @@ RUN \
   # sparrow requires this directory to exist
   mkdir -p /usr/share/desktop-directories/ && \
   # Download and install Sparrow (todo: gpg sig verification)
-  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
+  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrowwallet_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt.asc \
                https://keybase.io/craigraw/pgp_keys.asc && \
@@ -134,7 +137,7 @@ RUN \
   gpg --status-fd 1 --verify sparrow-${SPARROW_VERSION}-manifest.txt.asc | grep -q "GOODSIG ${SPARROW_PGP_SIG} Craig Raw <craig@sparrowwallet.com>" || exit 1 && \
   sha256sum --check sparrow-${SPARROW_VERSION}-manifest.txt --ignore-missing || exit 1 && \
   DEBIAN_FRONTEND=noninteractive \
-  apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
+  apt-get install -y ./sparrowwallet_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
   # cleanup
   rm ./sparrow* ./pgp_keys.asc
 
