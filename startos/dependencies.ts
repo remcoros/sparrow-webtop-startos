@@ -2,9 +2,6 @@ import { store } from './file-models/store.yaml'
 import { sdk } from './sdk'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
-  // clear any previous rpc credential requests
-  await sdk.action.clearRequest(effects, 'bitcoind-rpc')
-
   const conf = await store.read().const(effects)
 
   // no dependencies if we are not managing sparrow settings

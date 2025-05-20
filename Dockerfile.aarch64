@@ -46,8 +46,6 @@ ARG PLATFORM
 ARG SPARROW_VERSION
 ARG SPARROW_DEBVERSION
 ARG SPARROW_PGP_SIG
-ARG YQ_VERSION
-ARG YQ_SHA
 
 RUN \
   echo "**** install packages ****" && \
@@ -109,10 +107,6 @@ RUN \
   # upgrade remaining packages
   DEBIAN_FRONTEND=noninteractive \
   apt-get upgrade -y && \
-  # install yq
-  wget -qO /tmp/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${PLATFORM} && \
-  echo "${YQ_SHA} /tmp/yq" | sha256sum --check || exit 1 && \ 
-  mv /tmp/yq /usr/local/bin/yq && chmod +x /usr/local/bin/yq && \
   echo "**** xfce tweaks ****" && \
   rm -f /etc/xdg/autostart/xscreensaver.desktop && \
   # StartOS branding
@@ -133,7 +127,7 @@ RUN \
   # sparrow requires this directory to exist
   mkdir -p /usr/share/desktop-directories/ && \
   # Download and install Sparrow (todo: gpg sig verification)
-  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
+  wget --quiet https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrowwallet_${SPARROW_DEBVERSION}_${PLATFORM}.deb \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt \
                https://github.com/sparrowwallet/sparrow/releases/download/${SPARROW_VERSION}/sparrow-${SPARROW_VERSION}-manifest.txt.asc \
                https://keybase.io/craigraw/pgp_keys.asc && \
@@ -142,7 +136,7 @@ RUN \
   gpg --status-fd 1 --verify sparrow-${SPARROW_VERSION}-manifest.txt.asc | grep -q "GOODSIG ${SPARROW_PGP_SIG} Craig Raw <craig@sparrowwallet.com>" || exit 1 && \
   sha256sum --check sparrow-${SPARROW_VERSION}-manifest.txt --ignore-missing || exit 1 && \
   DEBIAN_FRONTEND=noninteractive \
-  apt-get install -y ./sparrow_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
+  apt-get install -y ./sparrowwallet_${SPARROW_DEBVERSION}_${PLATFORM}.deb && \
   # cleanup
   rm ./sparrow* ./pgp_keys.asc
 
