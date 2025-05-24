@@ -1,4 +1,4 @@
-import { store } from '../file-models/store.yaml'
+import { store } from '../fileModels/store.yaml'
 import { sdk } from '../sdk'
 
 export const uiCredentials = sdk.Action.withoutInput(
