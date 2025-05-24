@@ -1,5 +1,5 @@
 import { sdk } from '../sdk'
-import { store } from '../file-models/store.yaml'
+import { store } from '../fileModels/store.yaml'
 import { generateRpcPassword } from '../utils'
 import { generateRpcUserDependent } from 'bitcoind-startos/startos/actions/generateRpcUserDependent'
 
@@ -42,7 +42,7 @@ export const resetRpcAuth = sdk.Action.withoutInput(
 
     // request to create rpc credentials in bitcoind
     console.log('resetRpcAuth: requesting bitcoind-rpc action')
-    await sdk.action.request(
+    await sdk.action.createTask(
       effects,
       'bitcoind',
       generateRpcUserDependent,

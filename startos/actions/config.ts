@@ -1,6 +1,6 @@
 import { sdk } from '../sdk'
 import { T, utils } from '@start9labs/start-sdk'
-import { createDefaultStore, store } from '../file-models/store.yaml'
+import { createDefaultStore, store } from '../fileModels/store.yaml'
 import { Variants } from '@start9labs/start-sdk/base/lib/actions/input/builder'
 
 const { InputSpec, Value } = sdk
@@ -183,7 +183,7 @@ async function writeSettings(effects: T.Effects, input: InputSpec) {
     // })
   }
 
-  await sdk.action.clearRequest(effects, 'reset-rpc-auth')
+  await sdk.action.clearTask(effects, 'reset-rpc-auth')
 
   if (
     input.sparrow.managesettings &&

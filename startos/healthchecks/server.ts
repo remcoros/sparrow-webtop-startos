@@ -1,6 +1,6 @@
 import { T } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
-import { StoreType } from '../file-models/store.yaml'
+import { StoreType } from '../fileModels/store.yaml'
 import { config } from '../actions/config'
 
 export const serverHealthCheck = (effects: T.Effects, conf: StoreType) =>
@@ -50,7 +50,7 @@ export const serverHealthCheck = (effects: T.Effects, conf: StoreType) =>
         }
       }
 
-      sdk.action.requestOwn(effects, config, 'important', {
+      sdk.action.createOwnTask(effects, config, 'important', {
         reason: 'Change settings to not use a public electrum server',
       })
 
