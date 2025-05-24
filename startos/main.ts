@@ -3,9 +3,9 @@ import * as fs from 'node:fs/promises'
 import { sdk } from './sdk'
 import { T, utils } from '@start9labs/start-sdk'
 import { uiPort } from './utils'
-import { store } from './file-models/store.yaml'
+import { store } from './fileModels/store.yaml'
 import { serverHealthCheck } from './healthchecks/server'
-import { sparrow } from './file-models/sparrow.json'
+import { sparrow } from './fileModels/sparrow.json'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
