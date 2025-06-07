@@ -20,7 +20,7 @@ export const uiCredentials = sdk.Action.withoutInput(
 
   // execution function
   async ({ effects }) => {
-    var conf = (await store.read().const(effects))!
+    var conf = await store.read().const(effects)
 
     return {
       version: '1',
@@ -33,7 +33,7 @@ export const uiCredentials = sdk.Action.withoutInput(
             type: 'single',
             name: 'Username',
             description: 'Username for the web UI',
-            value: conf.username,
+            value: conf?.username || '',
             copyable: true,
             masked: false,
             qr: false,
@@ -42,7 +42,7 @@ export const uiCredentials = sdk.Action.withoutInput(
             type: 'single',
             name: 'Password',
             description: 'Password for the web UI',
-            value: conf.password || '',
+            value: conf?.password || '',
             copyable: true,
             masked: true,
             qr: false,
