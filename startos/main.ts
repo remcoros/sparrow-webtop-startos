@@ -11,9 +11,9 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
 
   // setup a watch on the store file for changes (this restarts the service)
-  const conf = (await store.read().const(effects))!
+  const conf = await store.read().const(effects)
 
-  if (!conf.password) {
+  if (!conf?.password) {
     throw new Error('Password is required')
   }
 
@@ -172,16 +172,18 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    */
   return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
     subcontainer: subcontainer,
-    command: ['docker_entrypoint.sh'],
-    runAsInit: true, // If true, this daemon will be run as PID 1 in the container.
-    env: {
-      PUID: '1000',
-      PGID: '1000',
-      TZ: 'Etc/UTC',
-      TITLE: conf.title,
-      CUSTOM_USER: conf.username,
-      PASSWORD: conf.password,
-      RECONNECT: conf.reconnect ? 'true' : 'false',
+    exec: {
+      command: ['docker_entrypoint.sh'],
+      runAsInit: true,
+      env: {
+        PUID: '1000',
+        PGID: '1000',
+        TZ: 'Etc/UTC',
+        TITLE: conf.title,
+        CUSTOM_USER: conf.username,
+        PASSWORD: conf.password,
+        RECONNECT: conf.reconnect ? 'true' : 'false',
+      },
     },
     ready: {
       display: 'Web Interface',

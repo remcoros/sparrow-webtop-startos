@@ -6,8 +6,6 @@ export const restartService = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => {
-    //const conf = await store.read().const(effects)
-
     return {
       name: 'Restart Service',
       description: 'This will restart the service',
