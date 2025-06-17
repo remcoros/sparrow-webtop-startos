@@ -33,7 +33,7 @@ RUN \
   cp index.html vnc.html && \
   mkdir Downloads
 
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-7784e3cf-ls114 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm-64c54f55-ls117 AS buildstage
 
 # these are specified in Makefile
 ARG ARCH
