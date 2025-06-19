@@ -1,8 +1,8 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 
-const SPARROW_VERSION = '2.2.2'
-const SPARROW_DEBVERSION = '2.2.2-1'
+const SPARROW_VERSION = '2.2.3'
+const SPARROW_DEBVERSION = '2.2.3-1'
 const SPARROW_PGP_SIG = 'E94618334C674B40'
 
 // the following allows us to build the service for x86 or arm64 specifically

@@ -2,10 +2,10 @@ import os from 'os'
 import * as fs from 'node:fs/promises'
 import { sdk } from './sdk'
 import { T, utils } from '@start9labs/start-sdk'
-import { uiPort } from './utils'
+import { canConnectToRpc, uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
-import { serverHealthCheck } from './healthchecks/server'
 import { sparrow } from './fileModels/sparrow.json'
+import { config } from './actions/config'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
@@ -156,21 +156,9 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   }
 
   /*
-   * Health checks
-   */
-  const healthReceipts: T.HealthCheck[] = []
-
-  // if we are managing the Sparrow settings, add a health check to display the connected server
-  if (conf.sparrow.managesettings) {
-    const checkConnectedNode = serverHealthCheck(effects, conf)
-
-    healthReceipts.push(checkConnectedNode)
-  }
-
-  /*
    * Daemons
    */
-  return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
+  const primaryDaemon = sdk.Daemons.of(effects, started).addDaemon('primary', {
     subcontainer: subcontainer,
     exec: {
       command: ['docker_entrypoint.sh'],
@@ -199,4 +187,62 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     },
     requires: [],
   })
+
+  // if we are managing the Sparrow settings, add a health check to display the connected server
+  if (conf.sparrow.managesettings) {
+    primaryDaemon.addHealthCheck('check-connected-node', {
+      ready: {
+        display: 'Connected Node',
+        fn: async () => {
+          if (conf.sparrow.server.type == 'bitcoind') {
+            // check if we can connect to the local bitcoin node
+            var status = await canConnectToRpc(
+              conf.sparrow.server.user,
+              conf.sparrow.server.password,
+              3000,
+            )
+
+            if (status != 'success') {
+              if (status == 'auth-error') {
+                return {
+                  message:
+                    'Invalid RPC credentials, Recreate them in the Action menu',
+                  result: 'failure',
+                }
+              }
+              return {
+                message: 'Failed to connect to local Bitcoin node',
+                result: 'failure',
+              }
+            }
+
+            return {
+              message: 'Connected to local Bitcoin node',
+              result: 'success',
+            }
+          }
+
+          if (conf.sparrow.server.type == 'electrs') {
+            // @todo: check if we can connect to the local electrum server
+            return {
+              message: 'Using local electrum server',
+              result: 'success',
+            }
+          }
+
+          sdk.action.createOwnTask(effects, config, 'important', {
+            reason: 'Change settings to not use a public electrum server',
+          })
+
+          return {
+            message: 'Using a public electrum server',
+            result: 'failure',
+          }
+        },
+      },
+      requires: [],
+    })
+  }
+
+  return primaryDaemon
 })
