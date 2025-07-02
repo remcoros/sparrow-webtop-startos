@@ -55,56 +55,46 @@ export const inputSpec = InputSpec.of({
           'Disable to manage your own server and proxy settings in Sparrow',
         default: true,
       }),
-      server: Value.dynamicUnion(
-        async ({ effects }) => {
-          // determine default server type and disabled options
-          const installedPackages = await effects.getInstalledPackages()
-          let serverType: 'electrs' | 'bitcoind' | 'public' = 'public'
-          //let disabled: string[] = []
+      server: Value.dynamicUnion(async ({ effects }) => {
+        // determine default server type and disabled options
+        const installedPackages = await effects.getInstalledPackages()
+        let serverType: 'electrs' | 'bitcoind' | 'public' = 'public'
+        //let disabled: string[] = []
 
-          if (installedPackages.includes('bitcoind')) {
-            serverType = 'bitcoind'
-          }
-          // else {
-          //   disabled.push('bitcoind')
-          // }
+        if (installedPackages.includes('bitcoind')) {
+          serverType = 'bitcoind'
+        }
 
-          if (installedPackages.includes('electrs')) {
-            serverType = 'electrs'
-          }
-          // else {
-          //   disabled.push('electrs')
-          // }
+        if (installedPackages.includes('electrs')) {
+          serverType = 'electrs'
+        }
 
-          return {
-            name: 'Server',
-            description: 'Bitcoin/Electrum Server',
-            default: serverType,
-            disabled: false,
-          }
-        },
-        Variants.of({
-          electrs: {
-            name: 'Electrs (recommended)',
-            spec: InputSpec.of({}),
-          },
-          bitcoind: {
-            name: 'Bitcoin Core',
-            spec: InputSpec.of({}),
-          },
-          public: {
-            name: 'Public (not recommended)',
-            spec: InputSpec.of({}),
-          },
-        }),
-      ),
-      proxy: Value.union(
-        {
-          name: 'Proxy',
-          description: 'Proxy settings',
-          default: 'tor',
-        },
-        Variants.of({
+        return {
+          name: 'Server',
+          description: 'Bitcoin/Electrum Server',
+          default: serverType,
+          disabled: false,
+          variants: Variants.of({
+            electrs: {
+              name: 'Electrs (recommended)',
+              spec: InputSpec.of({}),
+            },
+            bitcoind: {
+              name: 'Bitcoin Core',
+              spec: InputSpec.of({}),
+            },
+            public: {
+              name: 'Public (not recommended)',
+              spec: InputSpec.of({}),
+            },
+          }),
+        }
+      }),
+      proxy: Value.union({
+        name: 'Proxy',
+        description: 'Proxy settings',
+        default: 'tor',
+        variants: Variants.of({
           tor: {
             name: 'Tor (recommended)',
             spec: InputSpec.of({}),
@@ -114,7 +104,7 @@ export const inputSpec = InputSpec.of({
             spec: InputSpec.of({}),
           },
         }),
-      ),
+      }),
     }),
   ),
 })

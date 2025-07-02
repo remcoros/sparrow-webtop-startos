@@ -16,7 +16,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       electrs: {
         kind: 'exists',
         // @todo update version range
-        versionRange: '^0.10.9:0',
+        versionRange: '>=0.10.9:1-alpha.1',
       },
     }
   }
@@ -26,7 +26,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       bitcoind: {
         kind: 'exists',
         // @todo update version range
-        versionRange: '^28.1.0-0',
+        versionRange: '>=28.1:3-alpha.4',
       },
     }
   }
