@@ -59,28 +59,32 @@ export const inputSpec = InputSpec.of({
         // determine default server type and disabled options
         const installedPackages = await effects.getInstalledPackages()
         let serverType: 'electrs' | 'bitcoind' | 'public' = 'public'
-        //let disabled: string[] = []
+        let disabled: string[] = []
 
         if (installedPackages.includes('bitcoind')) {
           serverType = 'bitcoind'
+        } else {
+          disabled.push('bitcoind')
         }
 
         if (installedPackages.includes('electrs')) {
           serverType = 'electrs'
+        } else {
+          disabled.push('electrs')
         }
 
         return {
           name: 'Server',
           description: 'Bitcoin/Electrum Server',
           default: serverType,
-          disabled: false,
+          disabled: disabled,
           variants: Variants.of({
             electrs: {
-              name: 'Electrs (recommended)',
+              name: 'Electrs (recommended)' + (disabled.includes('electrs') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             bitcoind: {
-              name: 'Bitcoin Core',
+              name: 'Local Bitcoin Node' + (disabled.includes('bitcoind') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             public: {
