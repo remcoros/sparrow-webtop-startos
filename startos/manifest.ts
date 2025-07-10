@@ -70,7 +70,7 @@ export const manifest = setupManifest({
   volumes: ['main', 'userdir'],
   images: images,
   hardwareRequirements: {
-    //arch: ['x86_64', 'aarch64'],
+    arch: ['x86_64'],
   },
   alerts: {
     install: null,
@@ -84,12 +84,12 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Used to connect to your Bitcoin node.',
       optional: true,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.5/bitcoind.s9pk',
+      s9pk: null,
     },
     electrs: {
       description: 'Used to connect to your Bitcoin node.',
       optional: true,
-      s9pk: 'https://github.com/Start9Labs/electrs-startos/releases/download/v0.10.9-1-alpha.1/electrs.s9pk',
+      s9pk: null,
     },
   },
 })
