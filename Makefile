@@ -29,7 +29,7 @@ ingredients: $(INGREDIENTS)
 
 ${PACKAGE_ID}.s9pk: $(INGREDIENTS) | check-deps check-init
 	@$(MAKE) --no-print-directory ingredients
-	start-cli s9pk pack
+	BUILD=x86 start-cli s9pk pack
 
 x86: $(INGREDIENTS) | check-deps check-init
 	@$(MAKE) --no-print-directory ingredients
