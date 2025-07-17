@@ -1,18 +1,20 @@
-name: Release Service
+name: Build Service
 
 on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore: ['*.md']
+    branches: ['main', 'master', 'update/040']
   push:
-    tags:
-      - 'v*.*'
+    paths-ignore: ['*.md']
+    branches: ['main', 'master', 'update/040']
 
 jobs:
-  ReleasePackage:
+  BuildPackage:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Prepare StartOS SDK
-        uses: start9Labs/sdk@v2
+        uses: start9labs/sdk@v2
 
       - name: Checkout services repository
         uses: actions/checkout@v4
@@ -20,58 +22,17 @@ jobs:
           submodules: recursive
 
       - name: Build the service package
+        id: build
         run: |
           start-cli init
           RUST_LOG=debug RUST_BACKTRACE=1 make
-
-      - name: Setting package ID and title from the manifest
-        id: package
-        run: |
           PACKAGE_ID=$(start-cli s9pk inspect *.s9pk manifest | jq -r '.id')
-          PACKAGE_TITLE=$(start-cli s9pk inspect *.s9pk manifest | jq -r '.title')
           echo "package_id=${PACKAGE_ID}" >> $GITHUB_ENV
-          echo "package_title=${PACKAGE_TITLE}" >> $GITHUB_ENV
           printf "\n SHA256SUM: $(sha256sum ${PACKAGE_ID}.s9pk) \n"
         shell: bash
 
-      - name: Generate sha256 checksum
-        run: |
-          sha256sum ${PACKAGE_ID}.s9pk > ${PACKAGE_ID}.s9pk.sha256
-        shell: bash
-
-      - name: Generate changelog
-        run: |
-          echo "## What's Changed" > change-log.txt
-          echo "" >> change-log.txt
-
-          RELEASE_NOTES=$(start-cli s9pk inspect *.s9pk manifest | jq -r '.releaseNotes')
-          echo "${RELEASE_NOTES}" >> change-log.txt
-
-          echo "## SHA256 Hash" >> change-log.txt
-          echo '```' >> change-log.txt
-          sha256sum ${{ env.package_id }}.s9pk >> change-log.txt
-          echo '```' >> change-log.txt
-        shell: bash
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload .s9pk
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ env.package_title }} ${{ github.ref_name }}
-          prerelease: true
-          body_path: change-log.txt
-          files: |
-            ./${{ env.package_id }}.s9pk
-            ./${{ env.package_id }}.s9pk.sha256
-
-      - name: Publish to Registry
-        env:
-          S9USER: ${{ secrets.S9USER }}
-          S9PASS: ${{ secrets.S9PASS }}
-          S9REGISTRY: ${{ secrets.S9REGISTRY }}
-        run: |
-          if [[ -z "$S9USER" || -z "$S9PASS" || -z "$S9REGISTRY" ]]; then
-            echo "Publish skipped: missing registry credentials."
-          else
-            start-sdk publish https://$S9USER:$S9PASS@$S9REGISTRY ${{ env.package_id }}.s9pk
-          fi
+          name: ${{ env.package_id }}.s9pk
+          path: ./${{ env.package_id }}.s9pk
