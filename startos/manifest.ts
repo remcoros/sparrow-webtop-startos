@@ -46,13 +46,13 @@ const main_aarch64: SDKImageInputSpec = {
   },
 }
 
-// @todo name of images cannot contain capital letters, underscores, numbers?
+// name of images cannot contain capital letters, underscores, numbers?
 const images: Record<string, SDKImageInputSpec> =
   BUILD === 'x86'
-    ? { 'main': main_x64 }
+    ? { main: main_x64 }
     : BUILD === 'arm'
       ? { 'main-aarch': main_aarch64 }
-      : { 'main': main_x64, 'main-aarch': main_aarch64 }
+      : { main: main_x64, 'main-aarch': main_aarch64 }
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
@@ -61,7 +61,8 @@ export const manifest = setupManifest({
   wrapperRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
   upstreamRepo: 'https://github.com/sparrowwallet/sparrow',
   supportSite: 'https://github.com/sparrowwallet/sparrow/issues',
-  docsUrl: 'https://github.com/remcoros/sparrow-webtop-startos/blob/main/instructions.md',
+  docsUrl:
+    'https://github.com/remcoros/sparrow-webtop-startos/blob/main/instructions.md',
   marketingSite: 'https://sparrowwallet.com/',
   donationUrl: 'https://sparrowwallet.com/donate/',
   description: {
