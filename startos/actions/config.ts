@@ -165,46 +165,6 @@ async function readSettings(effects: T.Effects): Promise<PartialInputSpec> {
 }
 
 async function writeSettings(effects: T.Effects, input: InputSpec) {
-  if (
-    input.sparrow.managesettings &&
-    input.sparrow.server.selection == 'public'
-  ) {
-    console.log('using public electrum server')
-
-    // @todo this does not work (request config action from config action)
-    // await sdk.action.requestOwn(effects, config, 'important', {
-    //   reason: 'Change settings to not use a public electrum server',
-    // })
-  }
-
-  await sdk.action.clearTask(effects, 'reset-rpc-auth')
-
-  if (
-    input.sparrow.managesettings &&
-    input.sparrow.server.selection == 'bitcoind'
-  ) {
-    console.log('using bitcoind server')
-
-    const currentConf = await store.read().once()
-    // check if we need to request new credentials
-    if (
-      !currentConf?.sparrow.server.user ||
-      !currentConf?.sparrow.server.password
-    ) {
-      console.log('resetting rpc credentials')
-
-      await sdk.action.run({
-        actionId: 'reset-rpc-auth',
-        effects,
-        input: {},
-      })
-    } else {
-      //await sdk.action.clearRequest(effects, 'reset-rpc-auth')
-    }
-  } else {
-    //await sdk.action.clearRequest(effects, 'reset-rpc-auth')
-  }
-
   await store.merge(effects, {
     title: input.title,
     username: input.username,
