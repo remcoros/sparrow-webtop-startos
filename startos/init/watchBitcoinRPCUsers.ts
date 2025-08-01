@@ -18,6 +18,8 @@ export const watchBitcoinRPCUsers = sdk.setupOnInit(async (effects, kind) => {
       const username = 'sparrow_' + generateRpcPassword(6)
       const password = generateRpcPassword()
 
+      // allowWriteAfterConst is needed because we are writing to the store after reading it,
+      // this will trigger a re-run of this hook, but it will enter the else branch
       await store.merge(
         effects,
         {
@@ -50,7 +52,7 @@ export const watchBitcoinRPCUsers = sdk.setupOnInit(async (effects, kind) => {
       const users = [rpcAuth].flat().map((e) => e.split(':', 2))
       const rpcAuthEntry = users.find((e) => e[0] == currentUser)
 
-      if (!rpcAuthEntry || rpcAuthEntry[0] != currentUser) {
+      if (!rpcAuthEntry) {
         await sdk.action.createTask(
           effects,
           'bitcoind',
@@ -70,5 +72,7 @@ export const watchBitcoinRPCUsers = sdk.setupOnInit(async (effects, kind) => {
         )
       }
     }
+  } else {
+    sdk.action.clearTask(effects, 'request-rpc-credentials')
   }
 })
