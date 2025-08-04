@@ -1,4 +1,4 @@
-import { matches, FileHelper, T } from '@start9labs/start-sdk'
+import { matches, FileHelper } from '@start9labs/start-sdk'
 const { object, string, boolean, oneOf, literal } = matches
 
 // not all possible fields of Sparrow config are included, so
@@ -19,6 +19,9 @@ const shape = object({
 export type SparrowConfigType = typeof shape._TYPE
 
 export const sparrow = FileHelper.json(
-  '/media/startos/volumes/userdir/.sparrow/config',
+  {
+    volumeId: 'userdir',
+    subpath: '.sparrow/config',
+  },
   shape,
 )

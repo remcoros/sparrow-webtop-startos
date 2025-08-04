@@ -180,6 +180,9 @@ COPY --chmod=755 ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 COPY --chmod=664 icon.png /kclient/public/icon.png
 COPY --chmod=664 icon.png /kclient/public/favicon.ico
 
+# remove reference to non-existing file, see: https://github.com/linuxserver/kclient/issues/8
+RUN sed -i '/<script src="public\/js\/pcm-player\.js"><\/script>/d' /kclient/public/index.html
+
 # ports and volumes
 EXPOSE 3000
 VOLUME /config

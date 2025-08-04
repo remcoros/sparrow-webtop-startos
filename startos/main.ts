@@ -34,24 +34,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       readonly: false,
     })
 
-  /*
-  // mount the bitcoin data directory if we are using bitcoind
-  // @todo: mount only the .cookie file (could not get this to work)
-  if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
-    mounts = mounts.mountDependency({
-      dependencyId: 'bitcoind',
-      volumeId: 'main',
-      //subpath: '.cookie',
-      //mountpoint: '/mnt/bitcoind/.cookie',
-      //type: 'file',
-      subpath: null,
-      mountpoint: '/mnt/bitcoind',
-      // @todo: this should be readonly, but we need to change its permissions
-      readonly: false,
-    })
-  }
-  */
-
   // main subcontainer (the webtop container)
   // @todo: review this (should the service do this or can the sdk be smarter?)
   const imageId = os.arch() == 'x64' ? 'main' : 'main-aarch'
@@ -63,33 +45,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     mounts,
     'main',
   )
-
-  /*
-  // Detect when the bitcoind cookie changes and report it as a health check failure
-  // We do this instead of automatically restarting the service.
-  let cookieChanged = false
-  if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
-    let currentCookie = await FileHelper.string(
-      `${subcontainer.rootfs}/mnt/bitcoind/.cookie`,
-    )
-      .read()
-      .once()
-
-    FileHelper.string(`${subcontainer.rootfs}/mnt/bitcoind/.cookie`)
-      .read()
-      .onChange(effects, async (value) => {
-        if (currentCookie != value) {
-          console.log('Bitcoin Cookie changed')
-
-          cookieChanged = true
-          // request the user to restart the service
-          sdk.action.requestOwn(effects, restartService, 'important', {
-            reason: 'Bitcoin Cookie changed, please restart the service',
-          })
-        }
-      })
-  }
-  */
 
   /*
    * Sparrow settings

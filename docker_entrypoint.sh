@@ -8,10 +8,7 @@ mkdir -p /config/.config/openbox
 cp /defaults/autostart /config/.config/openbox/autostart
 chown -R abc:abc /config/.config/openbox
 
-# remove reference to non-existing file, see: https://github.com/linuxserver/kclient/issues/8
-sed -i '/<script src="public\/js\/pcm-player\.js"><\/script>/d' /kclient/public/index.html
-
-# add '&reconnect=' setting to kclient html
+# add '&reconnect=' setting to kclient html based on RECONNECT env var
 sed -i "s/\(index\.html?autoconnect=1\)/&\&reconnect=$RECONNECT/" /kclient/public/index.html
 
 # setup a proxy on localhost, Sparrow will not use Tor for local addresses
