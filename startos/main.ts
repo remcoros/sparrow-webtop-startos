@@ -33,6 +33,12 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       mountpoint: '/config',
       readonly: false,
     })
+    // override docker_entrypoint.sh with our own
+    .mountAssets({
+      mountpoint: '/usr/local/bin/docker_entrypoint.sh',
+      subpath: 'docker_entrypoint.sh',
+      type: 'file',
+    })
 
   // main subcontainer (the webtop container)
   // @todo: review this (should the service do this or can the sdk be smarter?)

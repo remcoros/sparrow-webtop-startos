@@ -1,49 +1,26 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 
-const SPARROW_VERSION = '2.2.3'
-const SPARROW_DEBVERSION = '2.2.3-1'
-const SPARROW_PGP_SIG = 'E94618334C674B40'
-
 // the following allows us to build the service for x86 or arm64 specifically
 // use: 'make x86' or 'make arm' ('make' will build both)
 const BUILD = process.env.BUILD || ''
 
 // @todo we need to define two images and decide which one to use when creating
 // the subcontainer (in main.ts), is this correct?
-
-const defaultBuildArgs = {
-  SPARROW_VERSION: SPARROW_VERSION,
-  SPARROW_DEBVERSION: SPARROW_DEBVERSION,
-  SPARROW_PGP_SIG: SPARROW_PGP_SIG,
-}
-
 const main_x64: SDKImageInputSpec = {
   arch: ['x86_64'],
   source: {
-    dockerBuild: {
-      workdir: '.',
-      dockerfile: 'Dockerfile',
-      buildArgs: {
-        ...defaultBuildArgs,
-        PLATFORM: 'amd64',
-      },
-    },
+    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:2.2.3-alpha1',
   },
+  emulateMissingAs: null
 }
 
 const main_aarch64: SDKImageInputSpec = {
   arch: ['aarch64'],
   source: {
-    dockerBuild: {
-      workdir: '.',
-      dockerfile: 'Dockerfile.aarch64',
-      buildArgs: {
-        ...defaultBuildArgs,
-        PLATFORM: 'arm64',
-      },
-    },
+    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:arm64v8-2.2.3-alpha1',
   },
+  emulateMissingAs: null
 }
 
 // name of images cannot contain capital letters, underscores, numbers?
@@ -72,6 +49,7 @@ export const manifest = setupManifest({
   volumes: ['main', 'userdir'],
   images: images,
   hardwareRequirements: {
+    // @TODO: add aarch64 when multi-arch s9pk is fixed
     arch: ['x86_64'],
   },
   alerts: {

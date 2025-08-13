@@ -1,9 +1,0 @@
-# open files and directories with thunar (file manager)
-xdg-mime default thunar.desktop inode/directory
-
-# open URL's with our custom handler
-xdg-settings set default-web-browser showurl.desktop
-xdg-mime default showurl.desktop x-scheme-handler/http x-scheme-handler/https
-
-# set desktop background color
-hsetroot -solid "#181818" 2> /dev/null
