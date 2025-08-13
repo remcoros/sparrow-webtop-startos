@@ -1,5 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Show URL
-Exec=/usr/bin/showurl %u
-StartupNotify=false
