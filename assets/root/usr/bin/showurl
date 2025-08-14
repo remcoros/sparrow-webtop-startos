@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+URL="$1"
+RESULT=$(notify-send -i /usr/share/icons/Adwaita/scalable/legacy/web-browser-symbolic.svg "Open URL requested:" "$URL" -A "copy=Copy to clipboard" -A "close=Close" -w)
+
+if [ "$RESULT" == "copy" ]; then
+    echo $URL | xclip -selection clipboard
+fi

@@ -1,0 +1,4 @@
+# run a compositor to get transparency effects
+compton -b
+
+/opt/sparrowwallet/bin/Sparrow

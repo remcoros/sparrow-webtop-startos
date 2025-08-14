@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+<menu id="root-menu" label="MENU">
+<item label="Sparrow" icon="/opt/sparrowwallet/lib/Sparrow.png"><action name="Execute"><command>/opt/sparrowwallet/bin/Sparrow</command></action></item>
+<item label="Notepad" icon="/usr/share/icons/hicolor/scalable/apps/org.xfce.mousepad.svg"><action name="Execute"><command>/usr/bin/mousepad</command></action></item>
+<item label="File Manager" icon="/usr/share/icons/hicolor/scalable/apps/org.xfce.thunar.svg"><action name="Execute"><command>/usr/bin/thunar</command></action></item>
+</menu>
+</openbox_menu>
