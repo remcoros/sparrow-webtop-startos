@@ -11,11 +11,11 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
+    "@types/node": "^22.17.1",
     "@types/js-yaml": "^4.0.9",
     "@vercel/ncc": "^0.38.3",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "prettier": {
     "trailingComma": "all",
