@@ -1,0 +1,54 @@
+diff --git a/app/ui.js b/app/ui.js
+index d973ffd..8d9515e 100644
+--- a/app/ui.js
++++ b/app/ui.js
+@@ -1628,15 +1628,17 @@ const UI = {
+         // UI.disconnect() won't be used in those cases.
+         UI.connected = false;
+ 
++        clearInterval(UI._sessionTimeoutInterval);
++
+         UI.rfb = undefined;
+ 
+         if (!e.detail.clean) {
+             UI.updateVisualState('disconnected');
+             if (wasConnected) {
+                 UI.showStatus(_("Something went wrong, connection is closed"),
+-                              'error');
++                              'error', 0, true);
+             } else {
+-                UI.showStatus(_("Failed to connect to server"), 'error');
++                UI.showStatus(_("Failed to connect to server"), 'error', 0, true);
+             }
+         } else if (UI.getSetting('reconnect', false) === true && !UI.inhibitReconnect) {
+             UI.updateVisualState('reconnecting');
+@@ -1646,7 +1648,7 @@ const UI = {
+             return;
+         } else {
+             UI.updateVisualState('disconnected');
+-            UI.showStatus(_("Disconnected"), 'normal');
++            UI.showStatus(_("Disconnected"), 'error', 0, true);
+         }
+ 
+         document.title = PAGE_TITLE;
+diff --git a/vnc.html b/vnc.html
+index e5b5177..565f273 100644
+--- a/vnc.html
++++ b/vnc.html
+@@ -478,13 +478,14 @@
+                                                 </div>
+                                             </li>
+                                             <li><hr></li>
+-                                            <li>
++                                            <li class="noVNC_hidden">
+                                                 <label class="switch">
+                                                     <input id="noVNC_setting_reconnect" type="checkbox"> 
++                                                    <span class="slider round"></span>
+                                                     <span class="slider-label">Automatic Reconnect</span>
+                                                 </label>
+                                             </li>
+-                                            <li>
++                                            <li class="noVNC_hidden">
+                                                 <label for="noVNC_setting_reconnect_delay">Reconnect Delay (ms):</label>
+                                                 <input id="noVNC_setting_reconnect_delay" type="number">
+                                             </li>

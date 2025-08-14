@@ -1,35 +1,7 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 
-// the following allows us to build the service for x86 or arm64 specifically
-// use: 'make x86' or 'make arm' ('make' will build both)
 const BUILD = process.env.BUILD || ''
-
-// @todo we need to define two images and decide which one to use when creating
-// the subcontainer (in main.ts), is this correct?
-const main_x64: SDKImageInputSpec = {
-  arch: ['x86_64'],
-  source: {
-    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:2.2.3',
-  },
-  emulateMissingAs: null
-}
-
-const main_aarch64: SDKImageInputSpec = {
-  arch: ['aarch64'],
-  source: {
-    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:arm64v8-2.2.3',
-  },
-  emulateMissingAs: null
-}
-
-// name of images cannot contain capital letters, underscores, numbers?
-const images: Record<string, SDKImageInputSpec> =
-  BUILD === 'x86'
-    ? { main: main_x64 }
-    : BUILD === 'arm'
-      ? { 'main-aarch': main_aarch64 }
-      : { main: main_x64, 'main-aarch': main_aarch64 }
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
@@ -47,10 +19,24 @@ export const manifest = setupManifest({
     long: "Sparrow on Webtop is a stripped down version of 'Webtop' (a Linux Desktop Environment) running the Sparrow wallet.\nThis allows users to access a simple Linux desktop with Sparrow pre-installed directly from their web browser.",
   },
   volumes: ['main', 'userdir'],
-  images: images,
+  images: {
+    'sparrow-webtop': {
+      source: { dockerBuild: {} },
+      arch:
+        BUILD === 'x86'
+          ? ['x86_64']
+          : BUILD === 'arm'
+            ? ['aarch64']
+            : ['x86_64', 'aarch64'],
+    } as SDKImageInputSpec,
+  },
   hardwareRequirements: {
-    // @TODO: add aarch64 when multi-arch s9pk is fixed
-    arch: ['x86_64'],
+    arch:
+      BUILD === 'x86'
+        ? ['x86_64']
+        : BUILD === 'arm'
+          ? ['aarch64']
+          : ['x86_64', 'aarch64'],
   },
   alerts: {
     install: null,

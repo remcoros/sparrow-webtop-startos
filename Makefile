@@ -1,53 +1,54 @@
-PACKAGE_ID := $(shell grep -o "id: '[^']*'" startos/manifest.ts | sed "s/id: '\([^']*\)'/\1/")
-INGREDIENTS := $(shell start-cli s9pk list-ingredients 2> /dev/null)
+PACKAGE_ID := $(shell awk -F"'" '/id:/ {print $$2}' startos/manifest.ts)
+INGREDIENTS := $(shell start-cli s9pk list-ingredients 2>/dev/null)
 
-.PHONY: all clean install check-deps check-init ingredients x86 arm
+CMD_ARCH_GOAL := $(filter arm x86, $(MAKECMDGOALS))
+ifeq ($(CMD_ARCH_GOAL),)
+  BUILD := both
+else
+  BUILD := $(firstword $(CMD_ARCH_GOAL))
+endif
 
+LAST_BUILD_STAMP := startos/.lba
+
+.PHONY: all arm x86 clean install check-deps check-init package
 .DELETE_ON_ERROR:
 
-all: ${PACKAGE_ID}.s9pk
-	@echo " Done!"
-	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
+all arm x86: package
+	@echo "✅ Done!$(if $(filter arm x86, $@), ($@ only))"
+	@echo "   Filesize: $(shell du -h ${PACKAGE_ID}.s9pk)"
+
+package: javascript/index.js $(INGREDIENTS) | check-deps check-init
+	@if [ ! -f "${PACKAGE_ID}.s9pk" ] || [ "$(BUILD)" != "$$(cat ${LAST_BUILD_STAMP} 2>/dev/null)" ]; then \
+		echo "📦 Packing '${PACKAGE_ID}.s9pk' for $(BUILD)..."; \
+		BUILD=$(BUILD) start-cli s9pk pack; \
+		echo "$(BUILD)" > ${LAST_BUILD_STAMP}; \
+	else \
+		echo "ℹ️  Package is already up to date for $(BUILD)."; \
+	fi
+
+install: package | check-deps check-init
+	@HOST=$$(awk -F'/' '/^host:/ {print $$3}' ~/.startos/config.yaml); \
+	if [ -z "$$HOST" ]; then \
+		echo "Error: You must define \"host: http://server-name.local\" in ~/.startos/config.yaml"; \
+		exit 1; \
+	fi; \
+	echo "\n🚀 Installing to $$HOST ..."; \
+	start-cli package install -s ${PACKAGE_ID}.s9pk
 
 check-deps:
-	@if ! command -v start-cli > /dev/null; then \
-		echo "Error: start-cli not found. Please install it first."; \
-		exit 1; \
-	fi
-	@if ! command -v npm > /dev/null; then \
-		echo "Error: npm (Node Package Manager) not found. Please install Node.js and npm."; \
-		exit 1; \
-	fi
+	@command -v start-cli >/dev/null || \
+		(echo "Error: start-cli not found. Please see https://docs.start9.com/latest/developer-guide/sdk/installing-the-sdk" && exit 1)
+	@command -v npm >/dev/null || \
+		(echo "Error: npm not found. Please install Node.js and npm." && exit 1)
 
 check-init:
 	@if [ ! -f ~/.startos/developer.key.pem ]; then \
+		echo "Initializing StartOS developer environment..."; \
 		start-cli init; \
 	fi
 
-ingredients: $(INGREDIENTS)
-	@echo "Re-evaluating ingredients..."
-
-${PACKAGE_ID}.s9pk: $(INGREDIENTS) | check-deps check-init
-	@$(MAKE) --no-print-directory ingredients
-	BUILD=x86 start-cli s9pk pack
-
-x86: $(INGREDIENTS) | check-deps check-init
-	@$(MAKE) --no-print-directory ingredients
-	BUILD=x86 start-cli s9pk pack
-	@echo " Done!"
-	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
-
-arm: $(INGREDIENTS) | check-deps check-init
-	@$(MAKE) --no-print-directory ingredients
-	BUILD=arm start-cli s9pk pack
-	@echo " Done!"
-	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
-
-javascript/index.js: $(shell git ls-files startos) tsconfig.json node_modules package.json
+javascript/index.js: $(shell git ls-files startos) tsconfig.json node_modules
 	npm run build
-
-assets:
-	mkdir -p assets
 
 node_modules: package-lock.json
 	npm ci
@@ -56,12 +57,5 @@ package-lock.json: package.json
 	npm i
 
 clean:
-	rm -rf ${PACKAGE_ID}.s9pk
-	rm -rf javascript
-	rm -rf node_modules
-
-install: ${PACKAGE_ID}.s9pk
-	@if [ ! -f ~/.startos/config.yaml ]; then echo "You must define \"host: http://server-name.local\" in ~/.startos/config.yaml config file first."; exit 1; fi
-	@echo "\nInstalling to $$(grep -v '^#' ~/.startos/config.yaml | cut -d'/' -f3) ...\n"
-	@[ -f $(PACKAGE_ID).s9pk ] || ( $(MAKE) && echo "\nInstalling to $$(grep -v '^#' ~/.startos/config.yaml | cut -d'/' -f3) ...\n" )
-	@start-cli package install -s $(PACKAGE_ID).s9pk
+	@echo "Cleaning up build artifacts..."
+	@rm -rf ${PACKAGE_ID}.s9pk javascript node_modules ${LAST_BUILD_STAMP}
