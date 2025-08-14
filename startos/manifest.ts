@@ -10,7 +10,7 @@ const BUILD = process.env.BUILD || ''
 const main_x64: SDKImageInputSpec = {
   arch: ['x86_64'],
   source: {
-    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:2.2.3-alpha1',
+    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:2.2.3',
   },
   emulateMissingAs: null
 }
@@ -18,7 +18,7 @@ const main_x64: SDKImageInputSpec = {
 const main_aarch64: SDKImageInputSpec = {
   arch: ['aarch64'],
   source: {
-    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:arm64v8-2.2.3-alpha1',
+    dockerTag: 'ghcr.io/remcoros/sparrow-webtop:arm64v8-2.2.3',
   },
   emulateMissingAs: null
 }
