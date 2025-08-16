@@ -2,6 +2,7 @@
 .vscode/
 .DS_Store
 scripts/*.js
+startos/.lba
 docker-images
 node_modules
 javascript/*

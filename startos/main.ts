@@ -1,7 +1,5 @@
-import os from 'os'
 import * as fs from 'node:fs/promises'
 import { sdk } from './sdk'
-import { T, utils } from '@start9labs/start-sdk'
 import { canConnectToRpc, uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
@@ -41,12 +39,10 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     })
 
   // main subcontainer (the webtop container)
-  // @todo: review this (should the service do this or can the sdk be smarter?)
-  const imageId = os.arch() == 'x64' ? 'main' : 'main-aarch'
   const subcontainer = await sdk.SubContainer.of(
     effects,
     {
-      imageId: imageId,
+      imageId: 'main',
     },
     mounts,
     'main',
