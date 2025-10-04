@@ -1,5 +1,6 @@
 import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
+import { SPARROW_VERSION } from './install/versions'
 
 const BUILD = process.env.BUILD || ''
 
@@ -29,7 +30,7 @@ export const manifest = setupManifest({
   images: {
     main: {
       source: {
-        dockerTag: 'ghcr.io/remcoros/sparrow-webtop:2.2.3.2',
+        dockerTag: 'ghcr.io/remcoros/sparrow-webtop:' + SPARROW_VERSION,
       },
       arch: architectures,
     } as SDKImageInputSpec,
