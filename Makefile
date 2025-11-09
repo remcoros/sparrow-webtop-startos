@@ -49,7 +49,7 @@ check-deps:
 check-init:
 	@if [ ! -f ~/.startos/developer.key.pem ]; then \
 		echo "Initializing StartOS developer environment..."; \
-		start-cli init; \
+		start-cli init-key; \
 	fi
 
 javascript/index.js: $(shell git ls-files startos) tsconfig.json node_modules
