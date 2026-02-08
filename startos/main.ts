@@ -4,15 +4,16 @@ import { canConnectToRpc, uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
 import { config } from './actions/config'
+import { i18n } from './i18n'
 
-export const main = sdk.setupMain(async ({ effects, started }) => {
+export const main = sdk.setupMain(async ({ effects }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
 
   // setup a watch on the store file for changes (this restarts the service)
   const conf = await store.read().const(effects)
 
   if (!conf?.password) {
-    throw new Error('Password is required')
+    throw new Error(i18n('Password is required'))
   }
 
   /*
@@ -115,7 +116,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   /*
    * Daemons
    */
-  const primaryDaemon = sdk.Daemons.of(effects, started).addDaemon('primary', {
+  const primaryDaemon = sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: subcontainer,
     exec: {
       command: ['docker_entrypoint.sh'],
@@ -131,14 +132,14 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       },
     },
     ready: {
-      display: 'Web Interface',
+      display: i18n('Web Interface'),
       fn: () =>
         sdk.healthCheck.checkWebUrl(
           effects,
           'http://sparrow-webtop.startos:' + uiPort,
           {
-            successMessage: 'The web interface is ready',
-            errorMessage: 'The web interface is unreachable',
+            successMessage: i18n('The web interface is ready'),
+            errorMessage: i18n('The web interface is unreachable'),
           },
         ),
     },
@@ -149,7 +150,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   if (conf.sparrow.managesettings) {
     primaryDaemon.addHealthCheck('check-connected-node', {
       ready: {
-        display: 'Connected Node',
+        display: i18n('Connected Node'),
         fn: async () => {
           if (conf.sparrow.server.type == 'bitcoind') {
             // check if we can connect to the local bitcoin node
@@ -162,19 +163,20 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
             if (status != 'success') {
               if (status == 'auth-error') {
                 return {
-                  message:
+                  message: i18n(
                     'Invalid RPC credentials, Recreate them in the Action menu',
+                  ),
                   result: 'failure',
                 }
               }
               return {
-                message: 'Failed to connect to local Bitcoin node',
+                message: i18n('Failed to connect to local Bitcoin node'),
                 result: 'failure',
               }
             }
 
             return {
-              message: 'Connected to local Bitcoin node',
+              message: i18n('Connected to local Bitcoin node'),
               result: 'success',
             }
           }
@@ -182,17 +184,17 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           if (conf.sparrow.server.type == 'electrs') {
             // @todo: check if we can connect to the local electrum server
             return {
-              message: 'Using local electrum server',
+              message: i18n('Using local electrum server'),
               result: 'success',
             }
           }
 
           sdk.action.createOwnTask(effects, config, 'important', {
-            reason: 'Change settings to not use a public electrum server',
+            reason: i18n('Change settings to not use a public electrum server'),
           })
 
           return {
-            message: 'Using a public electrum server',
+            message: i18n('Using a public electrum server'),
             result: 'failure',
           }
         },

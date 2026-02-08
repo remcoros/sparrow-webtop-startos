@@ -37,7 +37,7 @@ export const watchBitcoinRPCUsers = sdk.setupOnInit(async (effects, kind) => {
         location: '/tmp/bitcoin.conf',
         target: {
           packageId: 'bitcoind',
-          filetype: 'file',
+          idmap: [],          
           readonly: true,
           volumeId: 'main',
           subpath: '/bitcoin.conf',

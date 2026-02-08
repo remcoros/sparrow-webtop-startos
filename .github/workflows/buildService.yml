@@ -9,36 +9,15 @@ on:
     paths-ignore: ['*.md']
     branches: ['main', 'master', 'update/040']
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  BuildPackage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Prepare StartOS SDK
-        uses: start9labs/sdk@v2
-
-      - name: Checkout services repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Build the service package
-        id: build
-        run: |
-          start-cli init-key
-          if [[ -n "$S9DEVKEY" ]]; then
-            echo "Using developer key from secrets to sign the package."
-            printf '%s' "$S9DEVKEY" > ~/.startos/developer.key.pem
-          else
-            echo "Using newly generated developer key to sign the package."
-          fi
-          RUST_LOG=debug RUST_BACKTRACE=1 make
-          PACKAGE_ID=$(start-cli s9pk inspect *.s9pk manifest | jq -r '.id')
-          echo "package_id=${PACKAGE_ID}" >> $GITHUB_ENV
-          printf "\n SHA256SUM: $(sha256sum ${PACKAGE_ID}.s9pk) \n"
-        shell: bash
-
-      - name: Upload .s9pk
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.package_id }}.s9pk
-          path: ./${{ env.package_id }}.s9pk
+  build:
+    if: github.event.pull_request.draft == false
+    uses: start9labs/shared-workflows/.github/workflows/buildService.yml@master
+    # with:
+    #   FREE_DISK_SPACE: true
+    secrets:
+      DEV_KEY: ${{ secrets.DEV_KEY }}
