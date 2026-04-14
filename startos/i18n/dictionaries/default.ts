@@ -22,7 +22,7 @@ const dict = {
   'Username for the web UI': 201,
   'Password for the web UI': 202,
 
-  // actions/config.ts  
+  // actions/config.ts
   'The username for logging into your Webtop.': 300,
   'The password for logging into your Webtop.': 301,
   'Sparrow settings': 302,

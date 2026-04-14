@@ -86,15 +86,21 @@ export const inputSpec = InputSpec.of({
           disabled: disabled,
           variants: Variants.of({
             fulcrum: {
-              name: 'Fulcrum (recommended)' + (disabled.includes('fulcrum') ? ' (not installed)' : ''),
+              name:
+                'Fulcrum (recommended)' +
+                (disabled.includes('fulcrum') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             electrs: {
-              name: 'Electrs' + (disabled.includes('electrs') ? ' (not installed)' : ''),
+              name:
+                'Electrs' +
+                (disabled.includes('electrs') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             bitcoind: {
-              name: 'Local Bitcoin Node' + (disabled.includes('bitcoind') ? ' (not installed)' : ''),
+              name:
+                'Local Bitcoin Node' +
+                (disabled.includes('bitcoind') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             public: {

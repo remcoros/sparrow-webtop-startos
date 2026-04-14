@@ -178,7 +178,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
             }
           }
 
-          if (conf.sparrow.server.type == 'electrs' || conf.sparrow.server.type == 'fulcrum') {
+          if (
+            conf.sparrow.server.type == 'electrs' ||
+            conf.sparrow.server.type == 'fulcrum'
+          ) {
             return {
               message: i18n('Using local electrum server'),
               result: 'success',

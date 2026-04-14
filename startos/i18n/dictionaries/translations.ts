@@ -112,7 +112,7 @@ export default {
     8: 'Connecté au nœud Bitcoin local',
     9: 'Utilisation du serveur electrum local',
     10: 'Modifiez les paramètres pour ne pas utiliser un serveur electrum public',
-    11: 'Utilisation d\'un serveur electrum public',
+    11: "Utilisation d'un serveur electrum public",
 
     // interfaces.ts
     100: 'Interface web',
