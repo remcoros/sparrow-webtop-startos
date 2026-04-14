@@ -1,16 +1,17 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { SPARROW_VERSION } from '../install/versions'
+import { SPARROW_VERSION } from '../versions'
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
   title: 'Sparrow',
   license: 'GPLv3',
-  wrapperRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
+  packageRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
   upstreamRepo: 'https://github.com/sparrowwallet/sparrow',
-  supportSite: 'https://github.com/sparrowwallet/sparrow/issues',
-  docsUrl:
+  supportSites: ['https://github.com/sparrowwallet/sparrow/issues'],
+  docsUrls: [
     'https://github.com/remcoros/sparrow-webtop-startos/blob/main/instructions.md',
-  marketingSite: 'https://sparrowwallet.com/',
+  ],
+  marketingUrl: 'https://sparrowwallet.com/',
   donationUrl: 'https://sparrowwallet.com/donate/',
   description: {
     short: {

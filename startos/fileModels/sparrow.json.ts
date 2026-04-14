@@ -1,23 +1,22 @@
-import { matches, FileHelper } from '@start9labs/start-sdk'
+import { FileHelper, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
-const { object, string, boolean, oneOf, literal } = matches
 
 // not all possible fields of Sparrow config are included, so
-// so do not write a new file, use 'merge' instead
-const shape = object({
-  serverType: oneOf(
-    literal('BITCOIN_CORE'),
-    literal('ELECTRUM_SERVER'),
-    literal('PUBLIC_ELECTRUM_SERVER'),
-  ),
-  coreServer: string,
-  coreAuthType: oneOf(literal('USERPASS'), literal('COOKIE')),
-  coreAuth: string,
-  useProxy: boolean,
-  proxyServer: string,
+// do not write a new file, use 'merge' instead
+const shape = z.object({
+  serverType: z.union([
+    z.literal('BITCOIN_CORE'),
+    z.literal('ELECTRUM_SERVER'),
+    z.literal('PUBLIC_ELECTRUM_SERVER'),
+  ]),
+  coreServer: z.string(),
+  coreAuthType: z.union([z.literal('USERPASS'), z.literal('COOKIE')]),
+  coreAuth: z.string(),
+  useProxy: z.boolean(),
+  proxyServer: z.string(),
 })
 
-export type SparrowConfigType = typeof shape._TYPE
+export type SparrowConfigType = z.infer<typeof shape>
 
 export const sparrow = FileHelper.json(
   {

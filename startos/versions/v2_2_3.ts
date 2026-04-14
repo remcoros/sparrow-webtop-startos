@@ -2,7 +2,9 @@ import { VersionInfo, IMPOSSIBLE } from '@start9labs/start-sdk'
 
 export const v2_2_3 = VersionInfo.of({
   version: '2.2.3:0.2',
-  releaseNotes: 'Revamped for StartOS 0.4.0',
+  releaseNotes: {
+    en_US: 'Revamped for StartOS 0.4.0',
+  },
   migrations: {
     up: async ({ effects }) => {},
     down: IMPOSSIBLE,

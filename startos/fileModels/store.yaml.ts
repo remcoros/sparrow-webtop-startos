@@ -1,30 +1,29 @@
-import { matches, FileHelper, T } from '@start9labs/start-sdk'
+import { FileHelper, T, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
-const { object, string, boolean, oneOf, literal } = matches
 
-const shape = object({
-  title: string,
-  username: string,
-  password: string.optional(),
-  reconnect: boolean.onMismatch(false),
-  sparrow: object({
-    managesettings: boolean,
-    server: object({
-      type: oneOf(
-        literal('electrs'),
-        literal('bitcoind'),
-        literal('public'),
-      ).onMismatch('electrs'),
-      user: string,
-      password: string,
+const shape = z.object({
+  title: z.string(),
+  username: z.string(),
+  password: z.string().optional(),
+  reconnect: z.boolean().catch(false),
+  sparrow: z.object({
+    managesettings: z.boolean(),
+    server: z.object({
+      type: z
+        .union([
+          z.literal('electrs'),
+          z.literal('bitcoind'),
+          z.literal('public'),
+        ])
+        .catch('electrs'),
     }),
-    proxy: object({
-      type: oneOf(literal('tor'), literal('none')).onMismatch('tor'),
+    proxy: z.object({
+      type: z.union([z.literal('tor'), z.literal('none')]).catch('tor'),
     }),
   }),
 })
 
-export type StoreType = typeof shape._TYPE
+export type StoreType = z.infer<typeof shape>
 
 export const store = FileHelper.yaml(
   {
@@ -38,15 +37,8 @@ export const createDefaultStore = async (effects: T.Effects) => {
   // check if the file exists (from previous installs or upgrades)
   const conf = await store.read().once()
   if (conf) {
-    console.log('Sparrow config file already exists, clearing RPC credentials')
-    await store.merge(effects, {
-      sparrow: {
-        server: {
-          user: '',
-          password: '',
-        },
-      },
-    })
+    // already exists — nothing to migrate (stale user/password keys will be preserved but ignored)
+    console.log('Sparrow config file already exists, skipping default creation')
     return
   }
 
@@ -67,8 +59,6 @@ export const createDefaultStore = async (effects: T.Effects) => {
       managesettings: true,
       server: {
         type: serverType,
-        user: '',
-        password: '',
       },
       proxy: {
         type: 'tor',

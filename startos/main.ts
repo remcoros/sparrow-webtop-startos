@@ -1,15 +1,18 @@
 import * as fs from 'node:fs/promises'
 import { sdk } from './sdk'
-import { canConnectToRpc, uiPort } from './utils'
+import { uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
 import { config } from './actions/config'
 import { i18n } from './i18n'
 
+// Path where bitcoind's .cookie file is mounted inside the subcontainer
+const COOKIE_PATH = '/tmp/bitcoin-cookie/.cookie'
+
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
 
-  // setup a watch on the store file for changes (this restarts the service)
+  // watch the store for changes (restarts the service when config changes)
   const conf = await store.read().const(effects)
 
   if (!conf?.password) {
@@ -39,6 +42,19 @@ export const main = sdk.setupMain(async ({ effects }) => {
       type: 'file',
     })
 
+  // Always mount bitcoind's .cookie for cookie-based RPC auth.
+  // Mounted without .const() so a cookie rotation does not restart this service.
+  await sdk.mount(effects, {
+    location: '/tmp/bitcoin-cookie',
+    target: {
+      packageId: 'bitcoind',
+      idmap: [],
+      readonly: true,
+      volumeId: 'main',
+      subpath: '/',
+    },
+  })
+
   // main subcontainer (the webtop container)
   const subcontainer = await sdk.SubContainer.of(
     effects,
@@ -53,27 +69,27 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * Sparrow settings
    */
   if (conf.sparrow.managesettings) {
-    let config = {}
+    let sparrowConfig = {}
 
     // server config
     if (conf.sparrow.server.type == 'bitcoind') {
-      config = {
-        ...config,
+      sparrowConfig = {
+        ...sparrowConfig,
         serverType: 'BITCOIN_CORE',
         // socat proxy, to avoid going over tor (sparrow avoids tor only for local addresses)
         coreServer: 'http://127.0.0.1:8332',
-        coreAuthType: 'USERPASS',
-        coreAuth: conf.sparrow.server.user + ':' + conf.sparrow.server.password,
+        coreAuthType: 'COOKIE',
+        coreAuth: COOKIE_PATH,
       }
     } else if (conf.sparrow.server.type == 'electrs') {
-      config = {
-        ...config,
+      sparrowConfig = {
+        ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
         coreServer: 'tcp://127.0.0.1:50001',
       }
     } else if (conf.sparrow.server.type == 'public') {
-      config = {
-        ...config,
+      sparrowConfig = {
+        ...sparrowConfig,
         serverType: 'PUBLIC_ELECTRUM_SERVER',
       }
     }
@@ -81,14 +97,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
     // proxy config
     if (conf.sparrow.proxy.type == 'tor') {
       const serverIp = await sdk.getOsIp(effects)
-      config = {
-        ...config,
+      sparrowConfig = {
+        ...sparrowConfig,
         useProxy: true,
         proxyServer: `${serverIp}:9050`,
       }
     } else {
-      config = {
-        ...config,
+      sparrowConfig = {
+        ...sparrowConfig,
         useProxy: false,
       }
     }
@@ -96,7 +112,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     // create default config file if it does not exist
     const configFile = `${subcontainer.rootfs}/config/.sparrow/config`
     try {
-      await fs.access(configFile, fs.constants.F_OK) // check if configFile exists
+      await fs.access(configFile, fs.constants.F_OK)
     } catch (e) {
       await subcontainer.exec([
         'sh',
@@ -110,7 +126,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     }
 
     // merge with existing config file
-    sparrow.merge(effects, config)
+    sparrow.merge(effects, sparrowConfig)
   }
 
   /*
@@ -153,28 +169,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
         display: i18n('Connected Node'),
         fn: async () => {
           if (conf.sparrow.server.type == 'bitcoind') {
-            // check if we can connect to the local bitcoin node
-            var status = await canConnectToRpc(
-              conf.sparrow.server.user,
-              conf.sparrow.server.password,
-              3000,
-            )
-
-            if (status != 'success') {
-              if (status == 'auth-error') {
-                return {
-                  message: i18n(
-                    'Invalid RPC credentials, Recreate them in the Action menu',
-                  ),
-                  result: 'failure',
-                }
-              }
-              return {
-                message: i18n('Failed to connect to local Bitcoin node'),
-                result: 'failure',
-              }
-            }
-
             return {
               message: i18n('Connected to local Bitcoin node'),
               result: 'success',
@@ -182,7 +176,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
           }
 
           if (conf.sparrow.server.type == 'electrs') {
-            // @todo: check if we can connect to the local electrum server
             return {
               message: i18n('Using local electrum server'),
               result: 'success',
