@@ -58,7 +58,15 @@ export const manifest = setupManifest({
       optional: true,
       metadata: {
         title: 'Electrum Rust Server (electrs)',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/electrs-startos/master/icon.png',
+        icon: 'https://raw.githubusercontent.com/Start9-Community/electrs-startos/master/icon.svg',
+      },
+    },
+    fulcrum: {
+      description: 'Used to connect to your Bitcoin node.',
+      optional: true,
+      metadata: {
+        title: 'Fulcrum',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/fulcrum-startos/master/icon.png',
       },
     },
   },

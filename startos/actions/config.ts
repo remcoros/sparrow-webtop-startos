@@ -58,7 +58,7 @@ export const inputSpec = InputSpec.of({
       server: Value.dynamicUnion(async ({ effects }) => {
         // determine default server type and disabled options
         const installedPackages = await effects.getInstalledPackages()
-        let serverType: 'electrs' | 'bitcoind' | 'public' = 'public'
+        let serverType: 'fulcrum' | 'electrs' | 'bitcoind' | 'public' = 'public'
         let disabled: string[] = []
 
         if (installedPackages.includes('bitcoind')) {
@@ -73,14 +73,24 @@ export const inputSpec = InputSpec.of({
           disabled.push('electrs')
         }
 
+        if (installedPackages.includes('fulcrum')) {
+          serverType = 'fulcrum'
+        } else {
+          disabled.push('fulcrum')
+        }
+
         return {
           name: 'Server',
           description: 'Bitcoin/Electrum Server',
           default: serverType,
           disabled: disabled,
           variants: Variants.of({
+            fulcrum: {
+              name: 'Fulcrum (recommended)' + (disabled.includes('fulcrum') ? ' (not installed)' : ''),
+              spec: InputSpec.of({}),
+            },
             electrs: {
-              name: 'Electrs (recommended)' + (disabled.includes('electrs') ? ' (not installed)' : ''),
+              name: 'Electrs' + (disabled.includes('electrs') ? ' (not installed)' : ''),
               spec: InputSpec.of({}),
             },
             bitcoind: {

@@ -11,11 +11,12 @@ const shape = z.object({
     server: z.object({
       type: z
         .union([
+          z.literal('fulcrum'),
           z.literal('electrs'),
           z.literal('bitcoind'),
           z.literal('public'),
         ])
-        .catch('electrs'),
+        .catch('fulcrum'),
     }),
     proxy: z.object({
       type: z.union([z.literal('tor'), z.literal('none')]).catch('tor'),

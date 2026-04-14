@@ -15,5 +15,6 @@ sed -i "s/\(index\.html?autoconnect=1\)/&\&reconnect=$RECONNECT/" /kclient/publi
 # this means we can connect straight to bitcoind/electrs and use Tor for everything else (whirlpool)
 /usr/bin/socat tcp-l:8332,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:bitcoind.startos:8332 &
 /usr/bin/socat tcp-l:50001,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:electrs.startos:50001 &
+/usr/bin/socat tcp-l:50002,fork,reuseaddr,su=nobody,bind=127.0.0.1 tcp:fulcrum.startos:50001 &
 
 exec /init

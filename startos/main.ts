@@ -42,18 +42,15 @@ export const main = sdk.setupMain(async ({ effects }) => {
       type: 'file',
     })
 
-  // Always mount bitcoind's .cookie for cookie-based RPC auth.
-  // Mounted without .const() so a cookie rotation does not restart this service.
-  await sdk.mount(effects, {
-    location: '/tmp/bitcoin-cookie',
-    target: {
-      packageId: 'bitcoind',
-      idmap: [],
-      readonly: true,
+  if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
+    mounts = mounts.mountDependency({
+      dependencyId: 'bitcoind',
       volumeId: 'main',
-      subpath: '/',
-    },
-  })
+      subpath: '/.cookie',
+      mountpoint: '/tmp/bitcoin-cookie/.cookie',
+      readonly: true,
+    })
+  }
 
   // main subcontainer (the webtop container)
   const subcontainer = await sdk.SubContainer.of(
@@ -80,6 +77,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
         coreServer: 'http://127.0.0.1:8332',
         coreAuthType: 'COOKIE',
         coreAuth: COOKIE_PATH,
+      }
+    } else if (conf.sparrow.server.type == 'fulcrum') {
+      sparrowConfig = {
+        ...sparrowConfig,
+        serverType: 'ELECTRUM_SERVER',
+        coreServer: 'tcp://127.0.0.1:50002',
       }
     } else if (conf.sparrow.server.type == 'electrs') {
       sparrowConfig = {
@@ -175,7 +178,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
             }
           }
 
-          if (conf.sparrow.server.type == 'electrs') {
+          if (conf.sparrow.server.type == 'electrs' || conf.sparrow.server.type == 'fulcrum') {
             return {
               message: i18n('Using local electrum server'),
               result: 'success',

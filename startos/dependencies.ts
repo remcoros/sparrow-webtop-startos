@@ -11,6 +11,15 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
 
   var serverType = conf.sparrow.server.type
 
+  if (serverType == 'fulcrum') {
+    return {
+      fulcrum: {
+        kind: 'exists',
+        versionRange: '>=2.1.0:1',
+      },
+    }
+  }
+
   if (serverType == 'electrs') {
     return {
       electrs: {
