@@ -46,11 +46,13 @@ export const createDefaultStore = async (effects: T.Effects) => {
   // config file does not exist, create it
   console.log('Sparrow config file does not exist, creating it')
   const installedPackages = await effects.getInstalledPackages()
-  const serverType = installedPackages.includes('electrs')
-    ? 'electrs'
-    : installedPackages.includes('bitcoind')
-      ? 'bitcoind'
-      : 'public'
+  const serverType = installedPackages.includes('fulcrum')
+    ? 'fulcrum'
+    : installedPackages.includes('electrs')
+      ? 'electrs'
+      : installedPackages.includes('bitcoind')
+        ? 'bitcoind'
+        : 'public'
 
   await store.write(effects, {
     title: 'Sparrow on StartOS',
