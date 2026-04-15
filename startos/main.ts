@@ -74,7 +74,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ...sparrowConfig,
         serverType: 'BITCOIN_CORE',
         // socat proxy, to avoid going over tor (sparrow avoids tor only for local addresses)
-        coreServer: 'http://127.0.0.1:8332',
+        coreServer: 'http://bitcoind.startos:8332',
         coreAuthType: 'COOKIE',
         coreAuth: COOKIE_PATH,
       }
@@ -82,13 +82,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        electrumServer: 'tcp://127.0.0.1:50002',
+        electrumServer: 'tcp://fulcrum.startos:50001',
       }
     } else if (conf.sparrow.server.type == 'electrs') {
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        electrumServer: 'tcp://127.0.0.1:50001',
+        electrumServer: 'tcp://electrs.startos:50001',
       }
     } else if (conf.sparrow.server.type == 'public') {
       sparrowConfig = {
@@ -99,11 +99,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
     // proxy config
     if (conf.sparrow.proxy.type == 'tor') {
-      const serverIp = await sdk.getOsIp(effects)
       sparrowConfig = {
         ...sparrowConfig,
         useProxy: true,
-        proxyServer: `${serverIp}:9050`,
+        proxyServer: `tor.startos:9050`,
       }
     } else {
       sparrowConfig = {
