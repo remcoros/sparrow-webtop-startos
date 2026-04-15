@@ -5,6 +5,26 @@ PACKAGE_ID := $(shell awk -F"'" '/id:/ {print $$2}' startos/manifest/index.ts)
 INGREDIENTS := $(shell start-cli s9pk list-ingredients 2>/dev/null)
 ARCHES ?= x86 arm riscv
 TARGETS ?= arches
+
+# INSTALL_S9PK can be set explicitly to pin the file used by the install target.
+# The arch shim targets (x86/arm/riscv) set it automatically so that
+# 'make x86 install' or 'make arm install' always installs the correct arch.
+# When called standalone ('make install'), it falls back to the most-recently
+# modified .s9pk.
+INSTALL_S9PK ?=
+
+# Propagate INSTALL_S9PK from arch goals found in MAKECMDGOALS.
+# Note: BASE_NAME is not yet defined here, so we derive the prefix directly.
+_INSTALL_PREFIX := $(if $(VARIANT),$(PACKAGE_ID)_$(VARIANT),$(PACKAGE_ID))
+ifeq ($(INSTALL_S9PK),)
+  ifneq ($(filter x86 x86_64,$(MAKECMDGOALS)),)
+    INSTALL_S9PK := $(_INSTALL_PREFIX)_x86_64.s9pk
+  else ifneq ($(filter arm arm64 aarch64,$(MAKECMDGOALS)),)
+    INSTALL_S9PK := $(_INSTALL_PREFIX)_aarch64.s9pk
+  else ifneq ($(filter riscv riscv64,$(MAKECMDGOALS)),)
+    INSTALL_S9PK := $(_INSTALL_PREFIX)_riscv64.s9pk
+  endif
+endif
 ifdef VARIANT
 BASE_NAME := $(PACKAGE_ID)_$(VARIANT)
 else
@@ -69,7 +89,11 @@ install: | check-deps check-init
 		echo "Error: You must define \"host: http://server-name.local\" in ~/.startos/config.yaml"; \
 		exit 1; \
 	fi; \
-	S9PK=$$(ls -t *.s9pk 2>/dev/null | head -1); \
+	if [ -n "$(INSTALL_S9PK)" ]; then \
+		S9PK="$(INSTALL_S9PK)"; \
+	else \
+		S9PK=$$(ls -t *.s9pk 2>/dev/null | head -1); \
+	fi; \
 	if [ -z "$$S9PK" ]; then \
 		echo "Error: No .s9pk file found. Run 'make' first."; \
 		exit 1; \

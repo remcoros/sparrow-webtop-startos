@@ -82,13 +82,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        coreServer: 'tcp://127.0.0.1:50002',
+        electrumServer: 'tcp://127.0.0.1:50002',
       }
     } else if (conf.sparrow.server.type == 'electrs') {
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        coreServer: 'tcp://127.0.0.1:50001',
+        electrumServer: 'tcp://127.0.0.1:50001',
       }
     } else if (conf.sparrow.server.type == 'public') {
       sparrowConfig = {
@@ -129,7 +129,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     }
 
     // merge with existing config file
-    sparrow.merge(effects, sparrowConfig)
+    await sparrow.merge(effects, sparrowConfig)
   }
 
   /*

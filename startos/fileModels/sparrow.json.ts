@@ -12,6 +12,7 @@ const shape = z.object({
   coreServer: z.string(),
   coreAuthType: z.union([z.literal('USERPASS'), z.literal('COOKIE')]),
   coreAuth: z.string(),
+  electrumServer: z.string(),
   useProxy: z.boolean(),
   proxyServer: z.string(),
 })
