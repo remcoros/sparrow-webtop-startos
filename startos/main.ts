@@ -46,8 +46,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
     mounts = mounts.mountDependency({
       dependencyId: 'bitcoind',
       volumeId: 'main',
-      subpath: '/.cookie',
-      mountpoint: '/tmp/bitcoin-cookie/.cookie',
+      subpath: null,
+      mountpoint: '/tmp/bitcoin-cookie',
       readonly: true,
     })
   }
