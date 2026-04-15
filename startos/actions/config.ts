@@ -110,20 +110,25 @@ export const inputSpec = InputSpec.of({
           }),
         }
       }),
-      proxy: Value.union({
-        name: 'Proxy',
-        description: 'Proxy settings',
-        default: 'tor',
-        variants: Variants.of({
-          tor: {
-            name: 'Tor (recommended)',
-            spec: InputSpec.of({}),
-          },
-          none: {
-            name: 'None',
-            spec: InputSpec.of({}),
-          },
-        }),
+      proxy: Value.dynamicUnion(async ({ effects }) => {
+        const installedPackages = await effects.getInstalledPackages()
+        const torInstalled = installedPackages.includes('tor')
+        return {
+          name: 'Proxy',
+          description: 'Proxy settings',
+          default: torInstalled ? 'tor' : 'none',
+          disabled: [],
+          variants: Variants.of({
+            tor: {
+              name: 'Tor (recommended)',
+              spec: InputSpec.of({}),
+            },
+            none: {
+              name: 'None',
+              spec: InputSpec.of({}),
+            },
+          }),
+        }
       }),
     }),
   ),
@@ -174,7 +179,7 @@ async function readSettings(effects: T.Effects): Promise<PartialInputSpec> {
         selection: settings.sparrow.server.type,
       },
       proxy: {
-        selection: settings.sparrow.proxy.type,
+        selection: settings.sparrow.proxy.type as 'tor' | 'none',
       },
     },
   }

@@ -69,5 +69,13 @@ export const manifest = setupManifest({
         icon: 'https://raw.githubusercontent.com/Start9Labs/fulcrum-startos/master/icon.png',
       },
     },
+    tor: {
+      description: 'Used to route Sparrow traffic through Tor for privacy.',
+      optional: true,
+      metadata: {
+        title: 'Tor',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/tor-startos/65faea17febc739d910e8c26ff4e61f6333487a8/icon.svg',
+      },
+    },
   },
 })
