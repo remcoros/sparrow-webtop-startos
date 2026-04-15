@@ -1,13 +1,11 @@
 import * as fs from 'node:fs/promises'
+import { FileHelper } from '@start9labs/start-sdk'
 import { sdk } from './sdk'
 import { uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
 import { config } from './actions/config'
 import { i18n } from './i18n'
-
-// Path where bitcoind's .cookie file is mounted inside the subcontainer
-const COOKIE_PATH = '/tmp/bitcoin-cookie/.cookie'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info('setupMain: Setting up Sparrow webtop...')
@@ -47,7 +45,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       dependencyId: 'bitcoind',
       volumeId: 'main',
       subpath: null,
-      mountpoint: '/tmp/bitcoin-cookie',
+      mountpoint: '/tmp/bitcoin',
       readonly: true,
     })
   }
@@ -62,9 +60,24 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'main',
   )
 
+  // watch for .cookie changes
+  await FileHelper.string(`${subcontainer.rootfs}/tmp/bitcoin/.cookie`)
+    .read()
+    .const(effects)
+
   /*
    * Sparrow settings
    */
+  if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
+    // copy the .cookie file to a location where we can chown it
+    const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/.cookie`
+    const destPath = `${subcontainer.rootfs}/mnt/bitcoin/.cookie`
+    await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, { recursive: true })
+    await fs.copyFile(srcPath, destPath)
+    await fs.chown(destPath, 1000, 1000)
+    await fs.chmod(destPath, 0o400)
+  }
+
   if (conf.sparrow.managesettings) {
     let sparrowConfig = {}
 
@@ -76,7 +89,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
         // socat proxy, to avoid going over tor (sparrow avoids tor only for local addresses)
         coreServer: 'http://bitcoind.startos:8332',
         coreAuthType: 'COOKIE',
-        coreAuth: COOKIE_PATH,
+        coreAuth: '',
+        coreDataDir: '/mnt/bitcoin',
       }
     } else if (conf.sparrow.server.type == 'fulcrum') {
       sparrowConfig = {
