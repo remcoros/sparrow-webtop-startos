@@ -1,12 +1,14 @@
-import { VersionInfo } from '@start9labs/start-sdk'
+import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const v2_3_1 = VersionInfo.of({
-  version: '2.3.1:1.0',
+  version: '2.3.1:2-beta.1',
   releaseNotes: {
-    en_US: 'Updated to Sparrow 2.3.1',
+    en_US: 'Revamped for StartOS 0.4',
   },
   migrations: {
     up: async ({ effects }) => {},
-    down: async ({ effects }) => {},
+    down: IMPOSSIBLE,
   },
 })
+
+export const SPARROW_VERSION = '2.3.1'
