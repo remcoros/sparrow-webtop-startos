@@ -60,29 +60,35 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'main',
   )
 
-  // watch for .cookie changes
-  await FileHelper.string(`${subcontainer.rootfs}/tmp/bitcoin/.cookie`)
-    .read()
-    .const(effects)
-
   /*
    * Sparrow settings
    */
-  if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
-    // copy the .cookie file to a location where we can chown it
-    const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/.cookie`
-    const destPath = `${subcontainer.rootfs}/mnt/bitcoin/.cookie`
-    await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, { recursive: true })
-    await fs.copyFile(srcPath, destPath)
-    await fs.chown(destPath, 1000, 1000)
-    await fs.chmod(destPath, 0o400)
-  }
-
   if (conf.sparrow.managesettings) {
     let sparrowConfig = {}
 
     // server config
     if (conf.sparrow.server.type == 'bitcoind') {
+      async function copyCookieFile() {
+        // copy the .cookie file to a location where we can chown it
+        const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/.cookie`
+        const destPath = `${subcontainer.rootfs}/mnt/bitcoin/.cookie`
+        await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, { recursive: true })
+        await fs.copyFile(srcPath, destPath)
+        await fs.chown(destPath, 1000, 1000)
+        await fs.chmod(destPath, 0o400)
+      }
+
+      // watch for .cookie changes and copy it to the correct location.
+      // no need to use .const() / restart the service since Sparrow will pick up changes to the .cookie file automatically
+      await FileHelper.string(`${subcontainer.rootfs}/tmp/bitcoin/.cookie`)
+        .read()
+        .onChange(effects, async (value, error) => {
+          // note that .onChange is triggered once immediately
+          console.info('.cookie file changed, updating permissions...')
+          await copyCookieFile()
+          return { cancel: false }
+        })
+
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'BITCOIN_CORE',
