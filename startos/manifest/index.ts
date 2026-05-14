@@ -8,9 +8,6 @@ export const manifest = setupManifest({
   packageRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
   upstreamRepo: 'https://github.com/sparrowwallet/sparrow',
   supportSites: ['https://github.com/sparrowwallet/sparrow/issues'],
-  docsUrls: [
-    'https://github.com/remcoros/sparrow-webtop-startos/blob/main/instructions.md',
-  ],
   marketingUrl: 'https://sparrowwallet.com/',
   donationUrl: 'https://sparrowwallet.com/donate/',
   description: {
