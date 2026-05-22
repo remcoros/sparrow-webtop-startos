@@ -72,7 +72,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
         // copy the .cookie file to a location where we can chown it
         const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/.cookie`
         const destPath = `${subcontainer.rootfs}/mnt/bitcoin/.cookie`
-        await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, { recursive: true })
+        await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, {
+          recursive: true,
+        })
         await fs.copyFile(srcPath, destPath)
         await fs.chown(destPath, 1000, 1000)
         await fs.chmod(destPath, 0o400)
