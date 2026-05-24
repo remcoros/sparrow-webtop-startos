@@ -106,6 +106,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
         serverType: 'ELECTRUM_SERVER',
         electrumServer: 'tcp://fulcrum.startos:50001',
       }
+    } else if (conf.sparrow.server.type == 'frigate') {
+      sparrowConfig = {
+        ...sparrowConfig,
+        serverType: 'ELECTRUM_SERVER',
+        electrumServer: 'tcp://frigate.startos:50001',
+      }
     } else if (conf.sparrow.server.type == 'electrs') {
       sparrowConfig = {
         ...sparrowConfig,
@@ -201,7 +207,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
           if (
             conf.sparrow.server.type == 'electrs' ||
-            conf.sparrow.server.type == 'fulcrum'
+            conf.sparrow.server.type == 'fulcrum' ||
+            conf.sparrow.server.type == 'frigate'
           ) {
             return {
               message: i18n('Using local electrum server'),

@@ -66,6 +66,14 @@ export const manifest = setupManifest({
         icon: 'https://raw.githubusercontent.com/Start9Labs/fulcrum-startos/master/icon.png',
       },
     },
+    frigate: {
+      description: 'Used to connect to your Bitcoin node.',
+      optional: true,
+      metadata: {
+        title: 'Frigate',
+        icon: 'https://raw.githubusercontent.com/remcoros/frigate-startos/master/icon.png',
+      },
+    },
     tor: {
       description: 'Used to route Sparrow traffic through Tor for privacy.',
       optional: true,

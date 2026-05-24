@@ -17,10 +17,12 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
 
   if (serverType == 'fulcrum') {
     deps['fulcrum'] = { kind: 'exists', versionRange: '>=2.1.0:1' }
+  } else if (serverType == 'frigate') {
+    deps['frigate'] = { kind: 'exists', versionRange: '>=1.5.2:0' }
   } else if (serverType == 'electrs') {
-    deps['electrs'] = { kind: 'exists', versionRange: '>=0.10.9:1-alpha.1' }
+    deps['electrs'] = { kind: 'exists', versionRange: '>=0.11.1:0' }
   } else if (serverType == 'bitcoind') {
-    deps['bitcoind'] = { kind: 'exists', versionRange: '>=28.1:3-alpha.4' }
+    deps['bitcoind'] = { kind: 'exists', versionRange: '>=28.3:0' }
   }
 
   if (proxyType == 'tor') {

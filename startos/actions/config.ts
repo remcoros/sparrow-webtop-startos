@@ -58,7 +58,12 @@ export const inputSpec = InputSpec.of({
       server: Value.dynamicUnion(async ({ effects }) => {
         // determine default server type and disabled options
         const installedPackages = await effects.getInstalledPackages()
-        let serverType: 'fulcrum' | 'electrs' | 'bitcoind' | 'public' = 'public'
+        let serverType:
+          | 'frigate'
+          | 'fulcrum'
+          | 'electrs'
+          | 'bitcoind'
+          | 'public' = 'public'
         let disabled: string[] = []
 
         if (installedPackages.includes('bitcoind')) {
@@ -79,12 +84,25 @@ export const inputSpec = InputSpec.of({
           disabled.push('fulcrum')
         }
 
+        // frigate takes priority as default when installed
+        if (installedPackages.includes('frigate')) {
+          serverType = 'frigate'
+        } else {
+          disabled.push('frigate')
+        }
+
         return {
           name: 'Server',
           description: 'Bitcoin/Electrum Server',
           default: serverType,
           disabled: disabled,
           variants: Variants.of({
+            frigate: {
+              name:
+                'Frigate' +
+                (disabled.includes('frigate') ? ' (not installed)' : ''),
+              spec: InputSpec.of({}),
+            },
             fulcrum: {
               name:
                 'Fulcrum (recommended)' +
