@@ -9,13 +9,13 @@ const shape = z.object({
     z.literal('ELECTRUM_SERVER'),
     z.literal('PUBLIC_ELECTRUM_SERVER'),
   ]),
-  coreServer: z.string(),
+  coreServer: z.string().optional(),
   coreAuthType: z.union([z.literal('USERPASS'), z.literal('COOKIE')]),
   // username:password for USERPASS
-  coreAuth: z.string(),
+  coreAuth: z.string().optional(),
   // path to bitcoin data directory containing the .cookie file
-  coreDataDir: z.string(),
-  electrumServer: z.string(),
+  coreDataDir: z.string().optional(),
+  electrumServer: z.string().optional(),
   useProxy: z.boolean(),
   proxyServer: z.string(),
 })
