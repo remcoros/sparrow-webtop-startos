@@ -37,12 +37,6 @@ export const inputSpec = InputSpec.of({
     masked: true,
     minLength: 8,
   }),
-  reconnect: Value.toggle({
-    name: 'Automatically reconnect',
-    description:
-      'Automatically reconnect when the connection to the desktop is lost or the browser tab has been idle for too long.',
-    default: false,
-  }),
   sparrow: Value.object(
     {
       name: 'Sparrow settings',
@@ -190,7 +184,6 @@ async function readSettings(effects: T.Effects): Promise<PartialInputSpec> {
     title: settings.title,
     username: settings.username,
     password: settings.password,
-    reconnect: settings.reconnect,
     sparrow: {
       managesettings: settings.sparrow.managesettings,
       server: {
@@ -208,7 +201,6 @@ async function writeSettings(effects: T.Effects, input: InputSpec) {
     title: input.title,
     username: input.username,
     password: input.password,
-    reconnect: input.reconnect,
     sparrow: {
       managesettings: input.sparrow.managesettings,
       server: {
