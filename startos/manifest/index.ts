@@ -39,8 +39,10 @@ export const manifest = setupManifest({
       },
       arch: ['x86_64', 'aarch64'],
       emulateMissingAs: 'aarch64',
+      nvidiaContainer: true,
     },
   },
+  hardwareAcceleration: true,
   dependencies: {
     bitcoind: {
       description: 'Used to connect to your Bitcoin node.',

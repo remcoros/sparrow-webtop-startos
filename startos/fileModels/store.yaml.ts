@@ -5,7 +5,6 @@ const shape = z.object({
   title: z.string(),
   username: z.string(),
   password: z.string().optional(),
-  reconnect: z.boolean().catch(false),
   sparrow: z.object({
     managesettings: z.boolean(),
     server: z.object({
@@ -60,7 +59,6 @@ export const createDefaultStore = async (effects: T.Effects) => {
   await store.write(effects, {
     title: 'Sparrow on StartOS',
     username: 'webtop',
-    reconnect: false,
     sparrow: {
       managesettings: true,
       server: {

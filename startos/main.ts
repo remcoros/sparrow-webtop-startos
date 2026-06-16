@@ -33,12 +33,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
       mountpoint: '/config',
       readonly: false,
     })
-    // override docker_entrypoint.sh with our own
-    .mountAssets({
-      mountpoint: '/usr/local/bin/docker_entrypoint.sh',
-      subpath: 'docker_entrypoint.sh',
-      type: 'file',
-    })
 
   if (conf.sparrow.managesettings && conf.sparrow.server.type == 'bitcoind') {
     mounts = mounts.mountDependency({
@@ -59,6 +53,17 @@ export const main = sdk.setupMain(async ({ effects }) => {
     mounts,
     'main',
   )
+
+  /*
+   * StarOS-specific: fix /dev/dri permissions
+   * StartOS passes DRI devices as root:root, preventing the container user from
+   * opening them. chmod o+rw so selkies can use hardware acceleration.
+   */
+  await subcontainer.exec([
+    'sh',
+    '-c',
+    'ls /dev/dri/* 2>/dev/null | xargs -r chmod o+rw',
+  ])
 
   /*
    * Sparrow settings
@@ -165,7 +170,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const primaryDaemon = sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: subcontainer,
     exec: {
-      command: ['docker_entrypoint.sh'],
+      command: sdk.useEntrypoint(),
       runAsInit: true,
       env: {
         PUID: '1000',
@@ -174,7 +179,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
         TITLE: conf.title,
         CUSTOM_USER: conf.username,
         PASSWORD: conf.password,
-        RECONNECT: conf.reconnect ? 'true' : 'false',
       },
     },
     ready: {
