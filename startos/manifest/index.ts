@@ -4,10 +4,9 @@ import { SPARROW_VERSION } from '../versions'
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
   title: 'Sparrow',
-  license: 'GPLv3',
+  license: 'GPL-3.0-only',
   packageRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
   upstreamRepo: 'https://github.com/sparrowwallet/sparrow',
-  supportSites: ['https://github.com/sparrowwallet/sparrow/issues'],
   marketingUrl: 'https://sparrowwallet.com/',
   donationUrl: 'https://sparrowwallet.com/donate/',
   description: {

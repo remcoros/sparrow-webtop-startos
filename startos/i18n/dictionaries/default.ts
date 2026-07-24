@@ -13,6 +13,7 @@ const dict = {
   'Using local electrum server': 9,
   'Change settings to not use a public electrum server': 10,
   'Using a public electrum server': 11,
+  'Selected server is unavailable': 12,
 
   // interfaces.ts
   'Web Interface': 100,

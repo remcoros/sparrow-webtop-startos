@@ -119,7 +119,7 @@ Restore re-imports all wallet data and settings exactly as they were at backup t
 
 | Check | Method | Success Message | Failure Message |
 |---|---|---|---|
-| Web Interface | HTTP GET `http://sparrow-webtop.startos:3000` | The web interface is ready | The web interface is unreachable |
+| Web Interface | Loopback HTTP check on port 3000 | The web interface is ready | The web interface is unreachable |
 | Connected Node | RPC/connection check (when managing settings) | Connected to local Bitcoin node / Using local electrum server | Failed to connect / Using a public electrum server |
 
 ---
@@ -128,12 +128,15 @@ Restore re-imports all wallet data and settings exactly as they were at backup t
 
 | Service | Required/Optional | Version | Purpose |
 |---|---|---|---|
-| Bitcoin Core (`bitcoind`) | Optional | `>= 28.1:3-alpha.4` | Direct Bitcoin Core RPC connection. Cookie file mounted read-only for authentication. |
-| Electrs (`electrs`) | Optional | `>= 0.10.9:1-alpha.1` | Electrum server connection via local socat proxy on port 50001. |
-| Fulcrum (`fulcrum`) | Optional | `>= 2.1.0:1` | Electrum server connection via local socat proxy on port 50002. |
+| Bitcoin Core (`bitcoind`) | Optional | `>= 28.4:13` | Direct Bitcoin Core RPC connection. Cookie file mounted read-only for authentication. |
+| Electrs (`electrs`) | Optional | `>= 0.11.1:9` | Electrum server selected through its live bridge binding. |
+| Fulcrum (`fulcrum`) | Optional | `>= 2.1.1:6` | Electrum server selected through its live bridge binding. |
+| Frigate (`frigate`) | Optional | `>= 1.5.3:5` | Electrum server selected through its live bridge binding. |
 | Tor (`tor`) | Optional | `>= 0.4.9.5:0` | Routes Sparrow's outbound traffic through Tor. Becomes a dependency when proxy is set to Tor. |
 
-Only one of `bitcoind`, `electrs`, or `fulcrum` is active as a dependency at a time, depending on the selected server type. If no local server is available, Sparrow can be configured to use a public Electrum server (not recommended).
+Only one of `bitcoind`, `electrs`, `fulcrum`, or `frigate` is active as a dependency at a time, depending on the selected server type. If no local server is available, Sparrow can be configured to use a public Electrum server (not recommended).
+
+StartOS resolves only the selected provider and proxy through their live assigned bridge ports. Port collisions and provider reinstalls therefore heal without fixed `.startos` hostnames.
 
 ---
 
