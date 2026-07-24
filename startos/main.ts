@@ -1,7 +1,25 @@
 import * as fs from 'node:fs/promises'
 import { FileHelper } from '@start9labs/start-sdk'
+import {
+  rpcHostId,
+  rpcPort,
+  rpccookiefile,
+} from 'bitcoin-core-startos/startos/utils'
+import {
+  electrumHostId as electrsHostId,
+  port as electrsPort,
+} from 'electrs-startos/startos/utils'
+import {
+  electrumHostId as frigateHostId,
+  electrumPort as frigatePort,
+} from 'frigate-startos/startos/constants'
+import {
+  electrumPort as fulcrumPort,
+  mainHostId as fulcrumHostId,
+} from 'fulcrum-startos/startos/utils'
+import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { sdk } from './sdk'
-import { uiPort } from './utils'
+import { bridgeAddress, uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
 import { config } from './actions/config'
@@ -16,6 +34,44 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (!conf?.password) {
     throw new Error(i18n('Password is required'))
   }
+
+  const selectedAddress =
+    conf.sparrow.managesettings && conf.sparrow.server.type === 'bitcoind'
+      ? await bridgeAddress(effects, {
+          packageId: 'bitcoind',
+          hostId: rpcHostId,
+          internalPort: rpcPort,
+        }).const()
+      : conf.sparrow.managesettings && conf.sparrow.server.type === 'fulcrum'
+        ? await bridgeAddress(effects, {
+            packageId: 'fulcrum',
+            hostId: fulcrumHostId,
+            internalPort: fulcrumPort,
+          }).const()
+        : conf.sparrow.managesettings && conf.sparrow.server.type === 'frigate'
+          ? await bridgeAddress(effects, {
+              packageId: 'frigate',
+              hostId: frigateHostId,
+              internalPort: frigatePort,
+            }).const()
+          : conf.sparrow.managesettings &&
+              conf.sparrow.server.type === 'electrs'
+            ? await bridgeAddress(effects, {
+                packageId: 'electrs',
+                hostId: electrsHostId,
+                internalPort: electrsPort,
+              }).const()
+            : null
+
+  const proxyAddress =
+    conf.sparrow.managesettings && conf.sparrow.proxy.type === 'tor'
+      ? await bridgeAddress(effects, {
+          packageId: 'tor',
+          hostId: socksHostId,
+          internalPort: socksPort,
+          fallbackPort: socksPort,
+        }).const()
+      : null
 
   /*
    * Subcontainer setup
@@ -45,7 +101,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   }
 
   // main subcontainer (the webtop container)
-  const subcontainer = await sdk.SubContainer.of(
+  const subcontainer = await sdk.SubContainer.eager(
     effects,
     {
       imageId: 'main',
@@ -73,9 +129,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
     // server config
     if (conf.sparrow.server.type == 'bitcoind') {
+      if (!selectedAddress) {
+        throw new Error(i18n('Selected server is unavailable'))
+      }
       async function copyCookieFile() {
         // copy the .cookie file to a location where we can chown it
-        const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/.cookie`
+        const srcPath = `${subcontainer.rootfs}/tmp/bitcoin/${rpccookiefile}`
         const destPath = `${subcontainer.rootfs}/mnt/bitcoin/.cookie`
         await fs.mkdir(`${subcontainer.rootfs}/mnt/bitcoin`, {
           recursive: true,
@@ -87,7 +146,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
       // watch for .cookie changes and copy it to the correct location.
       // no need to use .const() / restart the service since Sparrow will pick up changes to the .cookie file automatically
-      await FileHelper.string(`${subcontainer.rootfs}/tmp/bitcoin/.cookie`)
+      await FileHelper.string(
+        `${subcontainer.rootfs}/tmp/bitcoin/${rpccookiefile}`,
+      )
         .read()
         .onChange(effects, async (value, error) => {
           // note that .onChange is triggered once immediately
@@ -100,28 +161,37 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ...sparrowConfig,
         serverType: 'BITCOIN_CORE',
         // socat proxy, to avoid going over tor (sparrow avoids tor only for local addresses)
-        coreServer: 'http://bitcoind.startos:8332',
+        coreServer: `http://${selectedAddress}`,
         coreAuthType: 'COOKIE',
         coreAuth: '',
         coreDataDir: '/mnt/bitcoin',
       }
     } else if (conf.sparrow.server.type == 'fulcrum') {
+      if (!selectedAddress) {
+        throw new Error(i18n('Selected server is unavailable'))
+      }
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        electrumServer: 'tcp://fulcrum.startos:50001',
+        electrumServer: `tcp://${selectedAddress}`,
       }
     } else if (conf.sparrow.server.type == 'frigate') {
+      if (!selectedAddress) {
+        throw new Error(i18n('Selected server is unavailable'))
+      }
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        electrumServer: 'tcp://frigate.startos:50001',
+        electrumServer: `tcp://${selectedAddress}`,
       }
     } else if (conf.sparrow.server.type == 'electrs') {
+      if (!selectedAddress) {
+        throw new Error(i18n('Selected server is unavailable'))
+      }
       sparrowConfig = {
         ...sparrowConfig,
         serverType: 'ELECTRUM_SERVER',
-        electrumServer: 'tcp://electrs.startos:50001',
+        electrumServer: `tcp://${selectedAddress}`,
       }
     } else if (conf.sparrow.server.type == 'public') {
       sparrowConfig = {
@@ -135,7 +205,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       sparrowConfig = {
         ...sparrowConfig,
         useProxy: true,
-        proxyServer: `tor.startos:9050`,
+        proxyServer: proxyAddress!,
       }
     } else {
       sparrowConfig = {
@@ -184,14 +254,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
     ready: {
       display: i18n('Web Interface'),
       fn: () =>
-        sdk.healthCheck.checkWebUrl(
-          effects,
-          'http://sparrow-webtop.startos:' + uiPort,
-          {
-            successMessage: i18n('The web interface is ready'),
-            errorMessage: i18n('The web interface is unreachable'),
-          },
-        ),
+        sdk.healthCheck.checkWebUrl(effects, 'http://127.0.0.1:' + uiPort, {
+          successMessage: i18n('The web interface is ready'),
+          errorMessage: i18n('The web interface is unreachable'),
+        }),
     },
     requires: [],
   })

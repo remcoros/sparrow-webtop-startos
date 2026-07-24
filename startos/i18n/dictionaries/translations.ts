@@ -14,6 +14,7 @@ export default {
     9: 'Usando servidor electrum local',
     10: 'Cambia la configuración para no usar un servidor electrum público',
     11: 'Usando un servidor electrum público',
+    12: 'El servidor seleccionado no está disponible',
 
     // interfaces.ts
     100: 'Interfaz web',
@@ -47,6 +48,7 @@ export default {
     9: 'Lokaler Electrum-Server wird verwendet',
     10: 'Ändern Sie die Einstellungen, um keinen öffentlichen Electrum-Server zu verwenden',
     11: 'Öffentlicher Electrum-Server wird verwendet',
+    12: 'Der ausgewählte Server ist nicht verfügbar',
 
     // interfaces.ts
     100: 'Weboberfläche',
@@ -80,6 +82,7 @@ export default {
     9: 'Używanie lokalnego serwera electrum',
     10: 'Zmień ustawienia, aby nie używać publicznego serwera electrum',
     11: 'Używanie publicznego serwera electrum',
+    12: 'Wybrany serwer jest niedostępny',
 
     // interfaces.ts
     100: 'Interfejs webowy',
@@ -113,6 +116,7 @@ export default {
     9: 'Utilisation du serveur electrum local',
     10: 'Modifiez les paramètres pour ne pas utiliser un serveur electrum public',
     11: "Utilisation d'un serveur electrum public",
+    12: 'Le serveur sélectionné est indisponible',
 
     // interfaces.ts
     100: 'Interface web',

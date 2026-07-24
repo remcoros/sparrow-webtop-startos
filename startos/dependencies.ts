@@ -16,13 +16,13 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
   const deps: T.CurrentDependenciesResult<T.SDKManifest> = {}
 
   if (serverType == 'fulcrum') {
-    deps['fulcrum'] = { kind: 'exists', versionRange: '>=2.1.0:1' }
+    deps['fulcrum'] = { kind: 'exists', versionRange: '>=2.1.1:6' }
   } else if (serverType == 'frigate') {
-    deps['frigate'] = { kind: 'exists', versionRange: '>=1.5.2:0' }
+    deps['frigate'] = { kind: 'exists', versionRange: '>=1.5.3:5' }
   } else if (serverType == 'electrs') {
-    deps['electrs'] = { kind: 'exists', versionRange: '>=0.11.1:0' }
+    deps['electrs'] = { kind: 'exists', versionRange: '>=0.11.1:9' }
   } else if (serverType == 'bitcoind') {
-    deps['bitcoind'] = { kind: 'exists', versionRange: '>=28.3:0' }
+    deps['bitcoind'] = { kind: 'exists', versionRange: '>=28.4:13' }
   }
 
   if (proxyType == 'tor') {
