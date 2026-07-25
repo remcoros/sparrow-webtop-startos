@@ -19,7 +19,7 @@ import {
 } from 'fulcrum-startos/startos/utils'
 import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { sdk } from './sdk'
-import { bridgeAddress, uiPort } from './utils'
+import { uiPort } from './utils'
 import { store } from './fileModels/store.yaml'
 import { sparrow } from './fileModels/sparrow.json'
 import { config } from './actions/config'
@@ -37,40 +37,51 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   const selectedAddress =
     conf.sparrow.managesettings && conf.sparrow.server.type === 'bitcoind'
-      ? await bridgeAddress(effects, {
-          packageId: 'bitcoind',
-          hostId: rpcHostId,
-          internalPort: rpcPort,
-        }).const()
+      ? await sdk.host
+          .getBridgeAddress(effects, {
+            packageId: 'bitcoind',
+            hostId: rpcHostId,
+            internalPort: rpcPort,
+            ssl: false,
+          })
+          .const()
       : conf.sparrow.managesettings && conf.sparrow.server.type === 'fulcrum'
-        ? await bridgeAddress(effects, {
-            packageId: 'fulcrum',
-            hostId: fulcrumHostId,
-            internalPort: fulcrumPort,
-          }).const()
+        ? await sdk.host
+            .getBridgeAddress(effects, {
+              packageId: 'fulcrum',
+              hostId: fulcrumHostId,
+              internalPort: fulcrumPort,
+            })
+            .const()
         : conf.sparrow.managesettings && conf.sparrow.server.type === 'frigate'
-          ? await bridgeAddress(effects, {
-              packageId: 'frigate',
-              hostId: frigateHostId,
-              internalPort: frigatePort,
-            }).const()
+          ? await sdk.host
+              .getBridgeAddress(effects, {
+                packageId: 'frigate',
+                hostId: frigateHostId,
+                internalPort: frigatePort,
+              })
+              .const()
           : conf.sparrow.managesettings &&
               conf.sparrow.server.type === 'electrs'
-            ? await bridgeAddress(effects, {
-                packageId: 'electrs',
-                hostId: electrsHostId,
-                internalPort: electrsPort,
-              }).const()
+            ? await sdk.host
+                .getBridgeAddress(effects, {
+                  packageId: 'electrs',
+                  hostId: electrsHostId,
+                  internalPort: electrsPort,
+                })
+                .const()
             : null
 
   const proxyAddress =
     conf.sparrow.managesettings && conf.sparrow.proxy.type === 'tor'
-      ? await bridgeAddress(effects, {
-          packageId: 'tor',
-          hostId: socksHostId,
-          internalPort: socksPort,
-          fallbackPort: socksPort,
-        }).const()
+      ? await sdk.host
+          .getBridgeAddress(effects, {
+            packageId: 'tor',
+            hostId: socksHostId,
+            internalPort: socksPort,
+            fallbackPort: socksPort,
+          })
+          .const()
       : null
 
   /*

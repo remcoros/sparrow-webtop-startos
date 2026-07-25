@@ -6,7 +6,7 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@start9labs/start-sdk": "2.0.7",
+    "@start9labs/start-sdk": "2.0.9",
     "bitcoin-core-startos": "github:Start9Labs/bitcoin-core-startos#31.x",
     "electrs-startos": "github:start9-community/electrs-startos#master",
     "frigate-startos": "github:remcoros/frigate-startos#main",
@@ -26,5 +26,8 @@
     "tabWidth": 2,
     "semi": false,
     "singleQuote": true
+  },
+  "overrides": {
+    "@start9labs/start-sdk": "$@start9labs/start-sdk"
   }
 }
