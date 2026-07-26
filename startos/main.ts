@@ -160,7 +160,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
       await FileHelper.string(
         `${subcontainer.rootfs}/tmp/bitcoin/${rpccookiefile}`,
       )
-        .read()
+        // Ignore removal during Bitcoin Core shutdown; copy the new cookie
+        // once Bitcoin Core starts again.
+        .read(
+          (cookie) => cookie,
+          (prev, next) => next === null || prev === next,
+        )
         .onChange(effects, async (value, error) => {
           // note that .onChange is triggered once immediately
           console.info('.cookie file changed, updating permissions...')
