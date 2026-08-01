@@ -7,7 +7,7 @@
 > **Upstream docs:** <https://sparrowwallet.com/docs/>
 >
 > Everything not listed in this document should behave the same as upstream
-> Sparrow 2.4.2. If a feature, setting, or behavior is not mentioned here,
+> Sparrow 2.5.3. If a feature, setting, or behavior is not mentioned here,
 > the upstream documentation is accurate and fully applicable.
 
 [Sparrow Wallet](https://sparrowwallet.com/) is a feature-rich Bitcoin desktop wallet focused on security and privacy. This package runs Sparrow inside a lightweight [Webtop](https://docs.linuxserver.io/images/docker-webtop/) Linux desktop environment, making it accessible directly from any web browser — no local software installation required.
@@ -36,7 +36,7 @@ Wrapper repo: <https://github.com/remcoros/sparrow-webtop-startos>
 
 ## Image and Container Runtime
 
-- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.4.2` (custom image based on [linuxserver/webtop](https://docs.linuxserver.io/images/docker-webtop/))
+- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.5.3` (custom image based on [linuxserver/webtop](https://docs.linuxserver.io/images/docker-webtop/))
 - **Architectures:** x86_64, aarch64 (aarch64 emulated via x86_64 image)
 - **Entrypoint:** Custom `docker_entrypoint.sh` (mounted from assets at runtime) wraps the upstream entrypoint. It sets the browser tab title, handles reconnect behavior, and starts `socat` proxies for local Bitcoin/Electrum connections.
 
@@ -168,8 +168,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for environment setup and build instructi
 
 ```yaml
 package_id: sparrow-webtop
-upstream_version: "2.4.2"
-image: ghcr.io/remcoros/sparrow-webtop:2.4.2
+upstream_version: "2.5.3"
+image: ghcr.io/remcoros/sparrow-webtop:2.5.3
 architectures:
   - x86_64
   - aarch64
