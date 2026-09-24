@@ -6,7 +6,7 @@ import {
   uiPort,
 } from './utils'
 import { store } from './fileModels/store.yaml'
-import { shrike } from './fileModels/shrike.json'
+import { shrikeConfig } from './fileModels/shrike.json'
 import { i18n } from './i18n'
 
 export const main = sdk.setupMain(async ({ effects }) => {
@@ -93,9 +93,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
     await subcontainer.exec([
       'sh',
       '-c',
-      'test -f /config/.shrike/config || { mkdir -p /config/.shrike && cp /defaults/.shrike/config /config/.shrike/config; }; chown -R 1000:1000 /config/.shrike',
+      // Seed whichever config this network uses, from the same defaults, then chown the tree.
+      // The wallet creates the network directory itself on first run, so this has to cope with it
+      // existing or not.
+      `d=${network === 'mainnet' ? '/config/.shrike' : `/config/.shrike/${network}`}; ` +
+        'mkdir -p "$d"; test -f "$d/config" || cp /defaults/.shrike/config "$d/config"; ' +
+        'chown -R 1000:1000 /config/.shrike',
     ])
-    await shrike.merge(effects, {
+    await shrikeConfig(network).merge(effects, {
       serverType: 'ELECTRUM_SERVER',
       electrumServer: server,
       // Never proxied. Shulcrum answers on a private address on this box, and Tor's SOCKS port
