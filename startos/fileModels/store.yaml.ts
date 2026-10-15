@@ -1,15 +1,15 @@
 import { FileHelper, T, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
 
-const shape = z.object({
+const shape = z.looseObject({
   title: z.string(),
   username: z.string(),
   password: z.string().optional(),
   enableWayland: z.boolean().catch(true),
   forceSoftwareRendering: z.boolean().catch(false),
-  sparrow: z.object({
+  sparrow: z.looseObject({
     managesettings: z.boolean(),
-    server: z.object({
+    server: z.looseObject({
       type: z
         .union([
           z.literal('frigate'),
@@ -20,7 +20,7 @@ const shape = z.object({
         ])
         .catch('fulcrum'),
     }),
-    proxy: z.object({
+    proxy: z.looseObject({
       type: z.union([z.literal('tor'), z.literal('none')]).catch('tor'),
     }),
   }),

@@ -3,7 +3,7 @@ import { sdk } from '../sdk'
 
 // not all possible fields of Sparrow config are included, so
 // do not write a new file, use 'merge' instead
-const shape = z.object({
+const shape = z.looseObject({
   serverType: z.union([
     z.literal('BITCOIN_CORE'),
     z.literal('ELECTRUM_SERVER'),
