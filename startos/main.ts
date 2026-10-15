@@ -12,7 +12,7 @@ import {
 import {
   electrumHostId as frigateHostId,
   electrumPort as frigatePort,
-} from 'frigate-startos/startos/constants'
+} from 'frigate-startos/startos/utils'
 import {
   electrumPort as fulcrumPort,
   mainHostId as fulcrumHostId,

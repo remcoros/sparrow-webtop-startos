@@ -37,51 +37,9 @@ export const manifest = setupManifest({
         dockerTag: 'ghcr.io/remcoros/sparrow-webtop:' + SPARROW_IMAGE_TAG,
       },
       arch: ['x86_64', 'aarch64'],
-      emulateMissingAs: 'aarch64',
+      emulateMissing: true,
       nvidiaContainer: true,
     },
   },
   hardwareAcceleration: true,
-  dependencies: {
-    bitcoind: {
-      description: 'Used to connect to your Bitcoin node.',
-      optional: true,
-      metadata: {
-        title: 'A Bitcoin Full Node',
-        icon: 'https://bitcoin.org/img/icons/opengraph.png',
-      },
-    },
-    electrs: {
-      description: 'Used to connect to your Bitcoin node.',
-      optional: true,
-      metadata: {
-        title: 'Electrum Rust Server (electrs)',
-        icon: 'https://raw.githubusercontent.com/Start9-Community/electrs-startos/master/icon.svg',
-      },
-    },
-    fulcrum: {
-      description: 'Used to connect to your Bitcoin node.',
-      optional: true,
-      metadata: {
-        title: 'Fulcrum',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/fulcrum-startos/master/icon.png',
-      },
-    },
-    frigate: {
-      description: 'Used to connect to your Bitcoin node.',
-      optional: true,
-      metadata: {
-        title: 'Frigate',
-        icon: 'https://raw.githubusercontent.com/remcoros/frigate-startos/master/icon.png',
-      },
-    },
-    tor: {
-      description: 'Used to route Sparrow traffic through Tor for privacy.',
-      optional: true,
-      metadata: {
-        title: 'Tor',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/tor-startos/65faea17febc739d910e8c26ff4e61f6333487a8/icon.svg',
-      },
-    },
-  },
 })

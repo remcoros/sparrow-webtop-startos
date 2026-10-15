@@ -14,6 +14,8 @@
 
 Wrapper repo: <https://github.com/remcoros/sparrow-webtop-startos>
 
+Requires StartOS 0.4.0.2 or later.
+
 ---
 
 ## Table of Contents

@@ -14,7 +14,4 @@ jobs:
   build:
     if: github.event.pull_request.draft == false
     uses: Start9Labs/start-technologies/.github/workflows/build.yml@master
-    # with:
-    #   FREE_DISK_SPACE: true
-    secrets:
-      DEV_KEY: ${{ secrets.DEV_KEY }}
+    # PR builds compile and pack without publishing or the release signing key.

@@ -1,37 +1,88 @@
-import { T } from '@start9labs/start-sdk'
 import { store } from './fileModels/store.yaml'
 import { sdk } from './sdk'
 
-export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
-  const conf = await store.read().const(effects)
-
-  // no dependencies if we are not managing sparrow settings
-  if (!conf?.sparrow.managesettings) {
-    return {}
-  }
-
-  const proxyType = conf.sparrow.proxy.type
-  const serverType = conf.sparrow.server.type
-
-  const deps: T.CurrentDependenciesResult<T.SDKManifest> = {}
-
-  if (serverType == 'fulcrum') {
-    deps['fulcrum'] = { kind: 'exists', versionRange: '>=2.1.1:6' }
-  } else if (serverType == 'frigate') {
-    deps['frigate'] = { kind: 'exists', versionRange: '>=1.5.3:5' }
-  } else if (serverType == 'electrs') {
-    deps['electrs'] = { kind: 'exists', versionRange: '>=0.11.1:9' }
-  } else if (serverType == 'bitcoind') {
-    deps['bitcoind'] = { kind: 'exists', versionRange: '>=28.4:13' }
-  }
-
-  if (proxyType == 'tor') {
-    deps['tor'] = {
-      kind: 'running',
-      versionRange: '>=0.4.9.5:0',
-      healthChecks: [],
-    }
-  }
-
-  return deps
+const bitcoin = sdk.Dependency.optional('bitcoind', {
+  description: 'Used to connect to your Bitcoin node.',
+  metadata: {
+    title: 'Bitcoin',
+    icon: 'https://bitcoin.org/img/icons/opengraph.png',
+  },
+  versionRange: '>=28.4:13',
+  kind: 'exists',
+  enabled: async ({ effects }) => {
+    const conf = await store.read().const(effects)
+    return (
+      !!conf?.sparrow.managesettings && conf.sparrow.server.type === 'bitcoind'
+    )
+  },
 })
+
+const electrs = sdk.Dependency.optional('electrs', {
+  description: 'Used to connect to your Bitcoin node.',
+  metadata: {
+    title: 'Electrum Rust Server (electrs)',
+    icon: 'https://raw.githubusercontent.com/Start9-Community/electrs-startos/master/icon.svg',
+  },
+  versionRange: '>=0.11.1:9',
+  kind: 'exists',
+  enabled: async ({ effects }) => {
+    const conf = await store.read().const(effects)
+    return (
+      !!conf?.sparrow.managesettings && conf.sparrow.server.type === 'electrs'
+    )
+  },
+})
+
+const fulcrum = sdk.Dependency.optional('fulcrum', {
+  description: 'Used to connect to your Bitcoin node.',
+  metadata: {
+    title: 'Fulcrum',
+    icon: 'https://raw.githubusercontent.com/Start9Labs/fulcrum-startos/master/icon.png',
+  },
+  versionRange: '>=2.1.1:6',
+  kind: 'exists',
+  enabled: async ({ effects }) => {
+    const conf = await store.read().const(effects)
+    return (
+      !!conf?.sparrow.managesettings && conf.sparrow.server.type === 'fulcrum'
+    )
+  },
+})
+
+const frigate = sdk.Dependency.optional('frigate', {
+  description: 'Used to connect to your Bitcoin node.',
+  metadata: {
+    title: 'Frigate',
+    icon: 'https://raw.githubusercontent.com/remcoros/frigate-startos/master/icon.png',
+  },
+  versionRange: '>=1.5.3:5',
+  kind: 'exists',
+  enabled: async ({ effects }) => {
+    const conf = await store.read().const(effects)
+    return (
+      !!conf?.sparrow.managesettings && conf.sparrow.server.type === 'frigate'
+    )
+  },
+})
+
+const tor = sdk.Dependency.optional('tor', {
+  description: 'Used to route Sparrow traffic through Tor for privacy.',
+  metadata: {
+    title: 'Tor',
+    icon: 'https://raw.githubusercontent.com/Start9Labs/tor-startos/65faea17febc739d910e8c26ff4e61f6333487a8/icon.svg',
+  },
+  versionRange: '>=0.4.9.5:0',
+  kind: 'running',
+  healthChecks: [],
+  enabled: async ({ effects }) => {
+    const conf = await store.read().const(effects)
+    return !!conf?.sparrow.managesettings && conf.sparrow.proxy.type === 'tor'
+  },
+})
+
+export const dependencies = sdk.Dependencies.of()
+  .addDependency(bitcoin)
+  .addDependency(electrs)
+  .addDependency(fulcrum)
+  .addDependency(frigate)
+  .addDependency(tor)
