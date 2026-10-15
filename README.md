@@ -36,9 +36,15 @@ Wrapper repo: <https://github.com/remcoros/sparrow-webtop-startos>
 
 ## Image and Container Runtime
 
-- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.5.4` (custom image based on [LinuxServer's Selkies base image](https://github.com/linuxserver/docker-baseimage-selkies))
+- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.5.4.1` (Sparrow 2.5.4 in a custom image based on [LinuxServer's Selkies base image](https://github.com/linuxserver/docker-baseimage-selkies))
 - **Architectures:** x86_64, aarch64 (native image for each architecture)
-- **Entrypoint:** Custom `docker_entrypoint.sh` (mounted from assets at runtime) wraps the upstream entrypoint. It sets the browser tab title, handles reconnect behavior, and starts `socat` proxies for local Bitcoin/Electrum connections.
+- **Entrypoint:** The image’s own `docker_entrypoint.sh`, launched as PID 1 via `useEntrypoint`, refreshes the selected desktop’s autostart files and delegates to LinuxServer’s `/init`. StartOS supplies the browser title, credentials and rendering settings through environment variables and resolves Bitcoin/Electrum connections through live bridge bindings.
+
+The desktop is streamed by Selkies 2. Browser camera forwarding is enabled on demand: opening the wallet's QR scanner requests access to the viewer's camera, rather than a camera attached to the server. Camera access requires a supported browser and a trusted HTTPS origin; Tor Browser can display the desktop but does not expose its camera. Desktop audio output and microphone forwarding are disabled and locked. The third-party proot application gallery, its installer and catalogue fetch are removed; the terminal, file manager, editor and sudo remain available.
+
+The desktop follows the browser size automatically. Streaming defaults to 30 fps with Turbo off; the sidebar allows 8–120 fps and changing Turbo mode. Existing browser-saved choices are retained and can override these defaults.
+
+The upgrade migration removes only exact, unmodified copies of proot-apps 0.3.2 tools from `/config/.local/bin`, identified by their published release hashes. Modified tools, symlinks, other user files and installed application data are retained. The existing `.bashrc` PATH entry is also retained for user-installed tools.
 
 The manifest enables hardware acceleration, so StartOS binds the graphics device nodes exposed by the host into the container. **Enable Wayland** selects the modern Wayland backend and defaults to on; turning it off selects the older X11 backend without disabling normal graphics-device detection. **Force Software Rendering** is the compatibility override for blank, unstable, or crashing Web UIs caused by incompatible graphics hardware. It takes precedence over **Enable Wayland**, selects X11, disables DRI3/Zink application acceleration and automatic GPU selection, forces Mesa software rendering, and locks Selkies to CPU video encoding.
 
@@ -142,7 +148,7 @@ Restore re-imports all wallet data and settings exactly as they were at backup t
 
 | Service                   | Required/Optional | Version        | Purpose                                                                                       |
 | ------------------------- | ----------------- | -------------- | --------------------------------------------------------------------------------------------- |
-| Bitcoin Core (`bitcoind`) | Optional          | `>= 28.4:13`   | Direct Bitcoin Core RPC connection. Cookie file mounted read-only for authentication.         |
+| Bitcoin (`bitcoind`) | Optional          | `>= 28.4:13`   | Direct Bitcoin Core RPC connection. Cookie file mounted read-only for authentication.         |
 | Electrs (`electrs`)       | Optional          | `>= 0.11.1:9`  | Electrum server selected through its live bridge binding.                                     |
 | Fulcrum (`fulcrum`)       | Optional          | `>= 2.1.1:6`   | Electrum server selected through its live bridge binding.                                     |
 | Frigate (`frigate`)       | Optional          | `>= 1.5.3:5`   | Electrum server selected through its live bridge binding.                                     |
@@ -157,10 +163,10 @@ StartOS resolves only the selected provider and proxy through their live assigne
 ## Limitations and Differences
 
 1. **Clipboard integration is limited** — copy/paste between the Webtop desktop and the host browser depends on browser clipboard permissions and may not work reliably in all browsers.
-2. **No hardware wallet support** — USB hardware wallet passthrough is not available in the containerized environment.
+2. **No USB hardware wallet support** — USB passthrough is not available. QR camera forwarding uses the browser camera independently and requires a supported browser over trusted HTTPS.
 3. **Single user only** — the Webtop session supports one concurrent user.
 4. **PSBT files** — file import/export works within the Webtop session; sharing files with the host requires using Sparrow's network-based signing flows or copying via the browser's download mechanism.
-5. **Cookie auth only for Bitcoin Core** — RPC username/password authentication is not supported; Sparrow connects using Bitcoin Core's `.cookie` file, which is mounted read-only from the `bitcoind` package.
+5. **Cookie auth only for Bitcoin** — RPC username/password authentication is not supported; Sparrow connects using Bitcoin Core's `.cookie` file, which is mounted read-only from the `bitcoind` package.
 
 ---
 
@@ -174,7 +180,7 @@ StartOS resolves only the selected provider and proxy through their live assigne
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for environment setup and build instructions.
+Use a [StartOS packaging workspace](https://docs.start9.com/packaging/environment-setup.html) for development. Run `make x86` for x86_64 or `make arm` for aarch64; the [Makefile](Makefile) uses the package's installed StartOS SDK build rules.
 
 ---
 
@@ -183,7 +189,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for environment setup and build instructi
 ```yaml
 package_id: sparrow-webtop
 upstream_version: '2.5.4'
-image: ghcr.io/remcoros/sparrow-webtop:2.5.4
+image: ghcr.io/remcoros/sparrow-webtop:2.5.4.1
 architectures:
   - x86_64
   - aarch64

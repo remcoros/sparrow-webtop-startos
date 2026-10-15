@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { SPARROW_VERSION } from '../versions'
+import { SPARROW_IMAGE_TAG } from '../versions'
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
@@ -34,7 +34,7 @@ export const manifest = setupManifest({
   images: {
     main: {
       source: {
-        dockerTag: 'ghcr.io/remcoros/sparrow-webtop:' + SPARROW_VERSION,
+        dockerTag: 'ghcr.io/remcoros/sparrow-webtop:' + SPARROW_IMAGE_TAG,
       },
       arch: ['x86_64', 'aarch64'],
       emulateMissingAs: 'aarch64',
