@@ -38,11 +38,11 @@ Requires StartOS 0.4.0.2 or later.
 
 ## Image and Container Runtime
 
-- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.5.5` (Sparrow 2.5.5 in a custom image based on [LinuxServer's Selkies base image](https://github.com/linuxserver/docker-baseimage-selkies))
+- **Image:** `ghcr.io/remcoros/sparrow-webtop:2.5.5.1` (Sparrow 2.5.5 in a custom image based on [LinuxServer's Selkies base image](https://github.com/linuxserver/docker-baseimage-selkies))
 - **Architectures:** x86_64, aarch64 (native image for each architecture)
 - **Entrypoint:** The image’s own `docker_entrypoint.sh`, launched as PID 1 via `useEntrypoint`, refreshes the selected desktop’s autostart files and delegates to LinuxServer’s `/init`. StartOS supplies the browser title, credentials and rendering settings through environment variables and resolves Bitcoin/Electrum connections through live bridge bindings.
 
-The desktop is streamed by Selkies 2. Browser camera forwarding is enabled on demand: opening the wallet's QR scanner requests access to the viewer's camera, rather than a camera attached to the server. Camera access requires a supported browser and a trusted HTTPS origin; Tor Browser can display the desktop but does not expose its camera. Desktop audio output and microphone forwarding are disabled and locked. The third-party proot application gallery, its installer and catalogue fetch are removed; the terminal, file manager, editor and sudo remain available.
+The desktop is streamed by Selkies 2.1.0. Browser camera forwarding is enabled on demand: opening the wallet's QR scanner requests access to the viewer's camera, rather than a camera attached to the server. Camera access requires a supported browser and a trusted HTTPS origin; Tor Browser can display the desktop but does not expose its camera. Desktop audio output and microphone forwarding are disabled and locked. The third-party proot application gallery, its installer and catalogue fetch are removed; the terminal, file manager, editor and sudo remain available.
 
 The desktop follows the browser size automatically. Streaming defaults to 30 fps with Turbo off; the sidebar allows 8–120 fps and changing Turbo mode. Existing browser-saved choices are retained and can override these defaults.
 
@@ -191,7 +191,7 @@ Use a [StartOS packaging workspace](https://docs.start9.com/packaging/environmen
 ```yaml
 package_id: sparrow-webtop
 upstream_version: '2.5.5'
-image: ghcr.io/remcoros/sparrow-webtop:2.5.5
+image: ghcr.io/remcoros/sparrow-webtop:2.5.5.1
 architectures:
   - x86_64
   - aarch64
