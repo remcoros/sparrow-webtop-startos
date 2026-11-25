@@ -1,10 +1,10 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { SPARROW_IMAGE_TAG } from '../versions'
+import { SPARROW_IMAGE_REF } from '../versions'
 
 export const manifest = setupManifest({
   id: 'sparrow-webtop',
   title: 'Sparrow',
-  license: 'GPL-3.0-only',
+  license: 'Apache-2.0',
   packageRepo: 'https://github.com/remcoros/sparrow-webtop-startos',
   upstreamRepo: 'https://github.com/sparrowwallet/sparrow',
   marketingUrl: 'https://sparrowwallet.com/',
@@ -34,7 +34,7 @@ export const manifest = setupManifest({
   images: {
     main: {
       source: {
-        dockerTag: 'ghcr.io/remcoros/sparrow-webtop:' + SPARROW_IMAGE_TAG,
+        dockerTag: SPARROW_IMAGE_REF,
       },
       arch: ['x86_64', 'aarch64'],
       emulateMissing: true,

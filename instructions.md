@@ -2,7 +2,7 @@
 
 Welcome to Sparrow on Webtop, your favourite desktop wallet in an Immutable Linux Desktop, running 24/7 on your StartOS server!
 
-This package requires StartOS 0.4.0.2 or later.
+This package requires StartOS 0.4.2 or later.
 
 ## Initial Configuration
 
